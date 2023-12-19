@@ -13,19 +13,15 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 
-# Include directories
-include_directories(${OPENGL_INCLUDE_DIRS})
-include_directories(${GLFW3_INCLUDE_DIR})
-include_directories(${GLEW_INCLUDE_DIRS})
-
 # Define source files for project
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-# Define header files for project
-file(GLOB_RECURSE HEADERS "include/*.h")
-
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Define header files for project
+target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 
 # Link libs to executable
 target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY} glfw GLEW::GLEW)
