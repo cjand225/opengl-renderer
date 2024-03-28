@@ -21,7 +21,7 @@ This project is a simple renderer built using OpenGL. It demonstrates the basics
 - OpenGL 3.3 or higher
 - [GLEW](http://glew.sourceforge.net/) for managing OpenGL extensions
 - [GLFW](https://www.glfw.org/) for windowing and input
-- [GLM](https://glm.g-truc.net/) for mathematics
+- [GLM](https://github.com/g-truc/glm) for mathematics
 
 ### Building the Project
 
