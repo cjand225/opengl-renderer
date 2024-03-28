@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <string>
 
-const char* LoadShaderCodeFromFile(std::string filePath);
+std::string LoadShaderCodeFromFile(std::string filePath);
 GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath);
 
 

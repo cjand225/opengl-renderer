@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-const char* LoadShaderCodeFromFile(std::string filePath)
+std::string LoadShaderCodeFromFile(std::string filePath)
 {
     std::string shaderCode;
     std::ifstream shaderStream(filePath.c_str(), std::ios::in);
@@ -22,7 +22,7 @@ const char* LoadShaderCodeFromFile(std::string filePath)
         throw std::exception("Impossible to open Vertex Shader.");
     }
 
-    return shaderCode.c_str();
+    return shaderCode;
 }
 
 GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
@@ -35,7 +35,8 @@ GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
 
     // Compile Vertex
     printf("Compiling Shader: %s\n", vertexFilePath.c_str());
-    const char* VertexSourcePointer = LoadShaderCodeFromFile(vertexFilePath);
+    std::string VertShaderCode = LoadShaderCodeFromFile(vertexFilePath);
+    const char* VertexSourcePointer = VertShaderCode.c_str();
     glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
     glCompileShader(VertexShaderID);
 
@@ -52,7 +53,8 @@ GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
 
     // Compile Fragment
     printf("Compiling Shader: %s\n", fragmentFilePath.c_str());
-    char const* FragmentSourcePointer = LoadShaderCodeFromFile(fragmentFilePath);
+    std::string fragShaderCode = LoadShaderCodeFromFile(fragmentFilePath);
+    char const* FragmentSourcePointer = fragShaderCode.c_str();
     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
     glCompileShader(FragmentShaderID);
 
