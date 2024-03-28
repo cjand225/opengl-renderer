@@ -47,3 +47,16 @@ OBJData loadFromOBJ(std::string filename)
 
     return data;
 }
+
+std::vector<unsigned int> flattenVertices(OBJData meshData)
+{
+    std::vector<unsigned int> indices;
+    for (const Face& face : meshData.faces) {
+        for (int index : face.vertexIndices) {
+            indices.push_back(static_cast<unsigned int>(index));
+        }
+    }
+
+    return indices;
+}
+

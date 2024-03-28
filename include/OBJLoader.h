@@ -21,5 +21,6 @@ struct OBJData
 };
 
 OBJData loadFromOBJ(std::string filename);
+std::vector<unsigned int> flattenVertices(OBJData meshData);
 
 #endif // OBJLOADER_H
