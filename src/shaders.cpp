@@ -25,52 +25,40 @@ std::string LoadShaderCodeFromFile(std::string filePath)
     return shaderCode;
 }
 
-GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
+GLuint CompileShader(GLenum shaderType, std::string shaderPath)
 {
-    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
+    GLuint ShaderID = glCreateShader(shaderType);
     GLint Result = GL_FALSE;
     int InfoLogLength;
-
-    // Compile Vertex
-    printf("Compiling Shader: %s\n", vertexFilePath.c_str());
-    std::string VertShaderCode = LoadShaderCodeFromFile(vertexFilePath);
-    const char* VertexSourcePointer = VertShaderCode.c_str();
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
-    glCompileShader(VertexShaderID);
+    
+    printf("Compiling Shader: %s\n", shaderPath.c_str());
+    std::string shaderCode = LoadShaderCodeFromFile(shaderPath);
+    const char* VertexSourcePointer = shaderCode.c_str();
+    glShaderSource(ShaderID, 1, &VertexSourcePointer, NULL);
+    glCompileShader(ShaderID);
 
     // Check Status
-    glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &Result);
+    glGetShaderiv(ShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 
     if(InfoLogLength > 0)
     {
-        std::vector<char> VertexShaderErrorMessage(InfoLogLength+1);
-        glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-        printf("%s\n", &VertexShaderErrorMessage[0]);
+        std::vector<char> ShaderErrorMessage(InfoLogLength+1);
+        glGetShaderInfoLog(ShaderID, InfoLogLength, NULL, &ShaderErrorMessage[0]);
+        printf("%s\n", &ShaderErrorMessage[0]);
     }
 
-    // Compile Fragment
-    printf("Compiling Shader: %s\n", fragmentFilePath.c_str());
-    std::string fragShaderCode = LoadShaderCodeFromFile(fragmentFilePath);
-    char const* FragmentSourcePointer = fragShaderCode.c_str();
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
-    glCompileShader(FragmentShaderID);
+    return ShaderID;
+}
 
-    // Check Status
-    glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-
-
-    if(InfoLogLength > 0)
-    {
-        std::vector<char> FragmentShaderErrorMessage(InfoLogLength+1);
-        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-        printf("%s\n", &FragmentShaderErrorMessage[0]);
-    }
+GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
+{
+    GLuint VertexShaderID = CompileShader(GL_VERTEX_SHADER, vertexFilePath);
+    GLuint FragmentShaderID = CompileShader(GL_FRAGMENT_SHADER, fragmentFilePath);
 
     // Link Program
+    GLint Result = GL_FALSE;
+    int InfoLogLength;
     printf("Linking Program\n");
     GLuint ProgramID = glCreateProgram();
     glAttachShader(ProgramID, VertexShaderID);

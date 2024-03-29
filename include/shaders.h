@@ -5,6 +5,7 @@
 #include <string>
 
 std::string LoadShaderCodeFromFile(std::string filePath);
+GLuint CompileShader(GLenum shaderType, std::string shaderPath);
 GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath);
 
 
