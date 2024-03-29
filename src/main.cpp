@@ -75,22 +75,21 @@ int main(int argc, char** argv) {
     // Unbind VAO
     glBindVertexArray(0);
 
-
-    // Setup GLM
-
-    // Get a handle for our "MVP" uniform
-	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+    // Setup MVP (Model View Project)
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
     // Camera
     glm::mat4 View = glm::lookAt(
-        glm::vec3(40, 40, 10), // Camera Location
-        glm::vec3(-40, 0, 0), // Look at Origin
+        glm::vec3(40, 40, 10), // Camera Location in World Space
+        glm::vec3(-40, 0, 0), // Look at Origin, 40 units to right 
         glm::vec3(0, 1, 0) // Head is up
     );
 
     glm ::mat4 Model = glm::mat4(1.0f);
     glm::mat4 MVP = Projection * View * Model;
+
+    // Get a handle for our "MVP" uniform
+    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
     // Setup before loop
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -109,7 +108,7 @@ int main(int argc, char** argv) {
         // Send Transformation to shader
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        //Draw something
+        //Draw our Model
         glBindVertexArray(VertexArrayObject);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
