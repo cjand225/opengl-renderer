@@ -43,9 +43,12 @@ int main(int argc, char** argv) {
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    std::filesystem::path vertexShaderPath = "../../assets/shaders/vertex_shader.glsl";
-    std::filesystem::path fragmentShaderPath = "../../assets/shaders/fragment_shader.glsl";
-    GLuint programID = LoadShaders( vertexShaderPath.string(), fragmentShaderPath.string());
+    std::vector<std::pair<GLenum, std::string>> shaders = {
+        {GL_VERTEX_SHADER, "../../assets/shaders/vertex_shader.glsl"},
+        {GL_FRAGMENT_SHADER, "../../assets/shaders/fragment_shader.glsl"}
+    };
+
+    GLuint programID = LoadShaders(shaders);
 
     // Model Loading
     std::filesystem::path modelPath = "../../assets/models/Goku/Goku.obj";

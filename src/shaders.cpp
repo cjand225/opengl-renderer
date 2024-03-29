@@ -82,13 +82,15 @@ GLuint LinkShaders(const std::vector<GLuint>& shaderIDs)
     return programID;
 }
 
-GLuint LoadShaders(std::string vertexFilePath, std::string fragmentFilePath)
+GLuint LoadShaders(const std::vector<std::pair<GLenum, std::string>>& shaderInfo)
 {
-    GLuint vertexShaderID = CompileShader(GL_VERTEX_SHADER, vertexFilePath);
-    GLuint fragmentShaderID = CompileShader(GL_FRAGMENT_SHADER, fragmentFilePath);
-    std::vector<GLuint> shaders = {vertexShaderID, fragmentShaderID};
-    GLuint ProgramID = LinkShaders(shaders);
+    std::vector<GLuint> shaderIDs;
+    
+    for (const auto& info : shaderInfo) {
+        GLuint shaderID = CompileShader(info.first, info.second);
+        shaderIDs.push_back(shaderID);
+    }
 
-    // Link Program
-    return ProgramID;
+    GLuint programID = LinkShaders(shaderIDs);
+    return programID;
 }
