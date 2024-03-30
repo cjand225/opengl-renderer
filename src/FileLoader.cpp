@@ -27,6 +27,18 @@ OBJData loadFromOBJ(std::string& filename)
             iss >> vertex.x >> vertex.y >> vertex.z;
             data.vertices.push_back(vertex);
         }
+        else if (prefix == "vt")
+        {
+            UV uv;
+            iss >> uv.u >> uv.v;
+
+            // Can be optional
+            if (!(iss >> uv.w)) {
+                uv.w = 0.0f;
+            }
+
+            data.UVs.push_back(uv);
+        }
         else if (prefix == "f")
         {
             Face face;

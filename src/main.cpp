@@ -50,6 +50,10 @@ int main(int argc, char** argv) {
 
     GLuint programID = LoadShaders(shaders);
 
+    // Material loading
+    std::string materialPath = "../../assets/models/Goku/Goku.mtl";
+    std::map<std::string, Material> modelMaterials = loadMTLFile(materialPath);
+
     // Model Loading
     std::filesystem::path modelPath = "../../assets/models/Goku/Goku.obj";
     OBJData meshData = loadFromOBJ(modelPath.string());

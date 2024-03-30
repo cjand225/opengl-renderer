@@ -16,10 +16,16 @@ struct Face
     std::vector<int> vertexIndices;
 };
 
+struct UV 
+{
+    float u, v, w;
+};
+
 struct OBJData
 {
     std::vector<Vertex> vertices;
     std::vector<Face> faces;
+    std::vector<UV> UVs;
 };
 
 struct Material
