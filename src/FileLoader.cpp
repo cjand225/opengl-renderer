@@ -1,13 +1,13 @@
 #include "FileLoader.h"
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
 OBJData loadFromOBJ(std::string& filename)
 {
-    std::ifstream inputFile(filename, std::ifstream::in);
-
-    if (!inputFile.is_open())
+    std::ifstream file(filename, std::ifstream::in);
+    if (!file.is_open())
     {
         throw std::runtime_error("Failed to open file: " + filename);
     }
@@ -15,7 +15,7 @@ OBJData loadFromOBJ(std::string& filename)
     std::string line = "";
     OBJData data;
 
-    while (std::getline(inputFile, line))
+    while (std::getline(file, line))
     {
         std::istringstream iss(line);
         std::string prefix = "";
@@ -75,6 +75,11 @@ std::vector<unsigned int> flattenVertices(OBJData& meshData)
 std::map<std::string, Material> loadMTLFile(std::string& filename)
 {
     std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open file: " + filename);
+    }
+
     std::string line;
     std::map<std::string, Material> materials;
     Material currentMaterial;
