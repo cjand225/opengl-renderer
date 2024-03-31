@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <stdexcept>
 
 OBJData loadFromOBJ(std::string& filename)
@@ -137,3 +138,70 @@ std::map<std::string, Material> loadMTLFile(std::string& filename)
 
     return materials;
 }
+
+GLuint loadDDSFile(std::string& filename)
+{
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open file: " + filename);
+    }
+
+    GLuint magicNumber;
+    file.read(reinterpret_cast<char*>(&magicNumber), sizeof(magicNumber));
+    if(magicNumber != DDS_MAGIC) 
+    {
+        std::cerr << "Not a DDS file: " << filename << std::endl;
+        return 0;
+    }
+
+    DDS_HEADER header;
+    file.read(reinterpret_cast<char*>(&header), sizeof(header));
+    if (header.ddspf.flags != DDPF_FOURCC) 
+    {
+        std::cerr << "Unsupported Format (Only DXT1, DXT3, DXT5 are supported)" << std::endl;
+        return 0;
+    }
+
+    GLuint blockSize = (header.ddspf.fourCC == FOURCC_DXT1) ? 8 : 16;
+    GLuint format;
+    switch (header.ddspf.fourCC)
+    {
+        case FOURCC_DXT1:
+            format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            break;
+        case FOURCC_DXT3:
+            format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            break;
+        case FOURCC_DXT5:
+            format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            break;
+        default:
+            std::cerr << "Unsupported DXT format" << std::endl;
+            return 0;
+    }
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Read mipmaps
+    unsigned int bufferSize = std::max(header.pitchOrLinearSize, header.width * header.height * blockSize / 8);
+    std::vector<unsigned char> buffer(bufferSize);
+    for (GLuint level = 0; level < header.mipMapCount && (header.width || header.height); level++)
+    {
+        unsigned int size = ((header.width + 3) / 4) * ((header.height + 3) / 4) * blockSize;
+        file.read(reinterpret_cast<char*>(buffer.data()), size);
+        glCompressedTexImage2D(GL_TEXTURE_2D, level, format, header.width, header.height, 0, size, buffer.data());
+
+        header.width /= 2;
+        header.height /= 2;
+    }
+
+    file.close();
+    return textureID;
+
+} 
