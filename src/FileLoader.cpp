@@ -139,7 +139,7 @@ std::map<std::string, Material> loadMTLFile(std::string& filename)
     return materials;
 }
 
-GLuint loadDDSFile(std::string& filename)
+GLuint loadDDSFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open())

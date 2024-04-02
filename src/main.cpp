@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <unordered_map>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -43,6 +44,7 @@ int main(int argc, char** argv) {
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+    // Shader loading
     std::vector<std::pair<GLenum, std::string>> shaders = {
         {GL_VERTEX_SHADER, "../../assets/shaders/vertex_shader.glsl"},
         {GL_FRAGMENT_SHADER, "../../assets/shaders/fragment_shader.glsl"}
@@ -58,6 +60,20 @@ int main(int argc, char** argv) {
     std::filesystem::path modelPath = "../../assets/models/Goku/Goku.obj";
     OBJData meshData = loadFromOBJ(modelPath.string());
     std::vector<unsigned int> indices = flattenVertices(meshData);
+
+    // Texture Loading
+    std::unordered_map<std::string, std::string> textures = {
+        {"eyes.png", "../../assets/models/Goku/results/eyes.DDS"},
+        {"face.png", "../../assets/models/Goku/results/face.DDS"},
+        {"pants.png", "../../assets/models/Goku/results/pants.DDS"},
+        {"shirt.png", "../../assets/models/Goku/results/shirt.DDS"}
+    };
+
+    std::unordered_map<std::string, GLuint> textureCache = {};
+    for (const auto& pair : textures) 
+    {
+        textureCache.insert(std::make_pair(pair.first, loadDDSFile(pair.second)));
+    }
 
     // Setup VAO
     GLuint VertexBufferObject, ElementBufferObject, VertexArrayObject;

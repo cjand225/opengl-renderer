@@ -72,7 +72,7 @@ struct DDS_HEADER {
 OBJData loadFromOBJ(std::string& filename);
 std::map<std::string, Material> loadMTLFile(std::string& filename);
 std::vector<unsigned int> flattenVertices(OBJData& meshData);
-GLuint loadDDSFile(std::string& filename);
+GLuint loadDDSFile(const std::string& filename);
 
 const GLuint DDS_MAGIC = 0x20534444; // "DDS " Header
 const GLuint DDSD_MIPMAPCOUNT = 0x20000;

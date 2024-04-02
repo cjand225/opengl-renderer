@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PROJECT>
+    <Image File="C:/Users/james/repositories/opengl-renderer/assets/models/Goku/eyes.png">
+        <Compression Setting="eyes" Enabled="False">
+            <Source>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/eyes.png</Source>
+            <Destination>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/results/eyes.DDS</Destination>
+            <fd>DXT5</fd>
+            <Quality>0.05</Quality>
+            <WeightR>0.3086</WeightR>
+            <WeightG>0.6094</WeightG>
+            <WeightB>0.082</WeightB>
+            <AlphaThreshold>0</AlphaThreshold>
+            <RefineSteps>0</RefineSteps>
+            <BlockRate>8.00</BlockRate>
+        </Compression>
+    </Image>
+    <Image File="C:/Users/james/repositories/opengl-renderer/assets/models/Goku/face.png">
+        <Compression Setting="face" Enabled="False">
+            <Source>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/face.png</Source>
+            <Destination>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/results/face.DDS</Destination>
+            <fd>DXT5</fd>
+            <Quality>0.05</Quality>
+            <WeightR>0.3086</WeightR>
+            <WeightG>0.6094</WeightG>
+            <WeightB>0.082</WeightB>
+            <AlphaThreshold>0</AlphaThreshold>
+            <RefineSteps>0</RefineSteps>
+            <BlockRate>8.00</BlockRate>
+        </Compression>
+    </Image>
+    <Image File="C:/Users/james/repositories/opengl-renderer/assets/models/Goku/pants.png">
+        <Compression Setting="pants" Enabled="False">
+            <Source>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/pants.png</Source>
+            <Destination>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/results/pants.DDS</Destination>
+            <fd>DXT5</fd>
+            <Quality>0.05</Quality>
+            <WeightR>0.3086</WeightR>
+            <WeightG>0.6094</WeightG>
+            <WeightB>0.082</WeightB>
+            <AlphaThreshold>0</AlphaThreshold>
+            <RefineSteps>0</RefineSteps>
+            <BlockRate>8.00</BlockRate>
+        </Compression>
+    </Image>
+    <Image File="C:/Users/james/repositories/opengl-renderer/assets/models/Goku/shirt.png">
+        <Compression Setting="shirt" Enabled="False">
+            <Source>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/shirt.png</Source>
+            <Destination>C:/Users/james/repositories/opengl-renderer/assets/models/Goku/results/shirt.DDS</Destination>
+            <fd>DXT5</fd>
+            <Quality>0.05</Quality>
+            <WeightR>0.3086</WeightR>
+            <WeightG>0.6094</WeightG>
+            <WeightB>0.082</WeightB>
+            <AlphaThreshold>0</AlphaThreshold>
+            <RefineSteps>0</RefineSteps>
+            <BlockRate>8.00</BlockRate>
+        </Compression>
+    </Image>
+</PROJECT>
