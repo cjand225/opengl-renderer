@@ -17,7 +17,7 @@ struct Face
     std::vector<int> vertexIndices;
 };
 
-struct UV 
+struct UV
 {
     float u, v, w;
 };

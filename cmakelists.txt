@@ -25,3 +25,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLFW
 
 # Link libs to executable
 target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY} glfw GLEW::GLEW)
+
+# Copy assets directory to build directory next to the executable
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
