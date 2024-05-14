@@ -8,6 +8,8 @@
 glm::mat4 getViewMatrix();
 glm::mat4 getProjectionMatrix();
 
+glm::vec2 getMousePosition(GLFWwindow* window);
+
 void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3& direction, const glm::vec3& right, float& deltaTime, float& speed);
 
 #endif // CONTROLS_H 

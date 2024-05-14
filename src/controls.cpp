@@ -15,6 +15,13 @@ glm::mat4 getViewMatrix()
     );
 }
 
+glm::vec2 getMousePosition(GLFWwindow* window)
+{
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    return glm::vec2(xpos, ypos);
+}
+
 void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3& direction, const glm::vec3& right, float& deltaTime, float& speed)
 {
     // Move Forward
@@ -34,3 +41,4 @@ void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3&
 		position -= right * deltaTime * speed;
 	}
 }
+
