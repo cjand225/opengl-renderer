@@ -1,6 +1,7 @@
 
 #include "FileLoader.h"
 #include "shaders.h"
+#include "controls.h"
 
 #include <filesystem>
 #include <iostream>
@@ -97,14 +98,10 @@ int main(int argc, char** argv) {
     glBindVertexArray(0);
 
     // Setup MVP (Model View Project)
-    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+    glm::mat4 Projection = getProjectionMatrix();
 
     // Camera
-    glm::mat4 View = glm::lookAt(
-        glm::vec3(40, 40, 10),  // Camera Location in World Space
-        glm::vec3(-40, 0, 0),   // Look at Origin, 40 units to right 
-        glm::vec3(0, 1, 0)      // Head is up
-    );
+    glm::mat4 View = getViewMatrix();
 
     glm ::mat4 Model = glm::mat4(1.0f);
     glm::mat4 MVP = Projection * View * Model;
