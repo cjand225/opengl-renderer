@@ -14,3 +14,23 @@ glm::mat4 getViewMatrix()
         glm::vec3(0, 1, 0)      // Head is up
     );
 }
+
+void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3& direction, const glm::vec3& right, float& deltaTime, float& speed)
+{
+    // Move Forward
+    if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS){
+		position += direction * deltaTime * speed;
+	}
+	// Move backward
+	if (glfwGetKey( window, GLFW_KEY_DOWN ) == GLFW_PRESS){
+		position -= direction * deltaTime * speed;
+	}
+	// Strafe right
+	if (glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
+		position += right * deltaTime * speed;
+	}
+	// Strafe left
+	if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
+		position -= right * deltaTime * speed;
+	}
+}
