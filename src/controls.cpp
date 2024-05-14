@@ -22,6 +22,15 @@ glm::vec2 getMousePosition(GLFWwindow* window)
     return glm::vec2(xpos, ypos);
 }
 
+glm::vec3 calculateDirection(const float& verticleAngle, const float& horizontalAngle)
+{
+    return glm::vec3(
+        cos(verticleAngle) * sin(horizontalAngle),
+        sin(verticleAngle),
+        cos(verticleAngle) * cos(horizontalAngle)
+    );
+}
+
 void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3& direction, const glm::vec3& right, float& deltaTime, float& speed)
 {
     // Move Forward
