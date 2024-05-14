@@ -22,6 +22,11 @@ glm::vec2 getMousePosition(GLFWwindow* window)
     return glm::vec2(xpos, ypos);
 }
 
+float calculateAngle(GLFWwindow* window, double& position)
+{
+    return 0.0f;
+}
+
 glm::vec3 calculateDirection(const float& verticleAngle, const float& horizontalAngle)
 {
     return glm::vec3(
