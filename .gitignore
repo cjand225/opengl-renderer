@@ -32,3 +32,6 @@
 
 # CMake
 build/
+
+# Custom Scripts
+build.bat
