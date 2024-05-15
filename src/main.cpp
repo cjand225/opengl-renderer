@@ -45,7 +45,12 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    // Setup Event Polling
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwPollEvents();
+    glfwSetCursorPos(window, 1024/2, 768/2);
+
 
     // Shader loading
     std::vector<std::pair<GLenum, std::string>> shaders = {
