@@ -109,16 +109,15 @@ int main(int argc, char** argv) {
     float initialHorizontalAngle = 3.14f;
     float initialVerticalAngle = 0.0f;
     float initialFieldOfView = 45.0f;
-    float speed = 3.0f;
+    float speed = 1.0f;
     float mouseSpeed = 0.005f;
 
     // Setup MVP (Model View Project)
     glm::mat4 Projection = getProjectionMatrix();
-
-    // Camera
     glm::mat4 View = getViewMatrix();
+    glm::mat4 Model = glm::mat4(1.0f);
 
-    glm ::mat4 Model = glm::mat4(1.0f);
+    calculateMatricies(window, Projection, View, Model, initialHorizontalAngle, initialVerticalAngle, mouseSpeed, initialFieldOfView, initialPosition, speed);
     glm::mat4 MVP = Projection * View * Model;
 
     // Get a handle for our "MVP" uniform
@@ -137,6 +136,10 @@ int main(int argc, char** argv) {
 
         // Apply Shaders
         glUseProgram(programID);
+
+        // Recalculate Matricies
+        calculateMatricies(window, Projection, View, Model, initialHorizontalAngle, initialVerticalAngle, mouseSpeed, initialFieldOfView, initialPosition, speed);
+        MVP = Projection * View * Model;
 
         // Send Transformation to shader
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
