@@ -7,7 +7,9 @@
 #include <iostream>
 #include <unordered_map>
 
+
 #include <GL/glew.h>
+#include <GL/gl.h> 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -135,6 +137,21 @@ int main(int argc, char** argv) {
         glfwPollEvents();
 
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
+
+    // Cleanup Buffers
+    glDeleteBuffers(1, &VertexBufferObject);
+    glDeleteBuffers(1, &ElementBufferObject);
+
+    // Cleanup Programs
+    glDeleteProgram(programID);
+
+    // Cleanup Textures
+    for (const auto& pair : textureCache) 
+    {
+        glDeleteTextures(1, &pair.second);
+    }
+    // Cleanup VAO
+    glDeleteVertexArrays(1, &VertexArrayObject);
 
     return 0;
 }
