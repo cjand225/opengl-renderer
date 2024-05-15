@@ -104,6 +104,14 @@ int main(int argc, char** argv) {
     // Unbind VAO
     glBindVertexArray(0);
 
+    // Setup Control Variables
+    glm::vec3 initialPosition = glm::vec3(0, 0, 5);
+    float initialHorizontalAngle = 3.14f;
+    float initialVerticalAngle = 0.0f;
+    float initialFieldOfView = 45.0f;
+    float speed = 3.0f;
+    float mouseSpeed = 0.005f;
+
     // Setup MVP (Model View Project)
     glm::mat4 Projection = getProjectionMatrix();
 
