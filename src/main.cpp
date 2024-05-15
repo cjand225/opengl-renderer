@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     glBindVertexArray(0);
 
     // Setup Control Variables
-    glm::vec3 initialPosition = glm::vec3(0, 0, 5);
+    glm::vec3 initialPosition = glm::vec3(0, 30, 50);
     float initialHorizontalAngle = 3.14f;
     float initialVerticalAngle = 0.0f;
     float initialFieldOfView = 45.0f;
