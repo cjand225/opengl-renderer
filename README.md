@@ -31,17 +31,16 @@ This project is a simple renderer built using OpenGL. It demonstrates the basics
     git clone git@github.com:cjand225/opengl-renderer.git
 ```
 
-2. Navigate to the project directory & create a build folder:
+2. Navigate to the project directory:
 
 ```sh
     cd opengl-renderer
-    mkdir build && cd build
 ```
 
 5. Run CMake to configure the project:
 
 ```sh
-   cmake .. 
+   cmake -B build -S .  
 ```
 
 Note: If you're using a package manager, remember to specifcy the toolchain with cmake.
@@ -51,7 +50,7 @@ Note: If you're using a package manager, remember to specifcy the toolchain with
 5. Build the project with CMake:
 
 ```sh
-    cmake --build . --config [Debug|Release]
+    cmake --build build --config [Debug|Release]
 ```
 
 Note: Remember to specify the build config type of either Debug or Release.
