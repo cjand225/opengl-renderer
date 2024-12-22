@@ -1,23 +1,26 @@
 
-#include "FileLoader.h"
-#include "shaders.h"
-#include "controls.h"
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl3.h>
+#else
+#include <GL/gl.h>
+#include <GL/glew.h>
+#endif
+
+#include <GLFW/glfw3.h>
 
 #include <filesystem>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <unordered_map>
 
-
-#include <GL/glew.h>
-#include <GL/gl.h> 
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "FileLoader.h"
+#include "controls.h"
+#include "shaders.h"
 
 int main(int argc, char** argv) {
- 
-    if(!glfwInit())
-    {
+    if (!glfwInit()) {
         std::cerr << "Failed to Initialize glfw" << std::endl;
         return -1;
     }
@@ -28,10 +31,13 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+#endif
+
     GLFWwindow* window = glfwCreateWindow(1024, 768, "OpenGL Renderer", NULL, NULL);
 
-    if (!window)
-    {
+    if (!window) {
         std::cerr << "Failed to open GLFW window." << std::endl;
         glfwTerminate();
         return -1;
@@ -39,8 +45,7 @@ int main(int argc, char** argv) {
 
     glfwMakeContextCurrent(window);
 
-    if (glewInit() != GLEW_OK)
-    {
+    if (glewInit() != GLEW_OK) {
         std::cerr << "Failed to Initialize GLEW" << std::endl;
         return -1;
     }
@@ -49,38 +54,34 @@ int main(int argc, char** argv) {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwPollEvents();
-    glfwSetCursorPos(window, 1024/2, 768/2);
-
+    glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
     // Shader loading
     std::vector<std::pair<GLenum, std::string>> shaders = {
         {GL_VERTEX_SHADER, "./assets/shaders/vertex_shader.glsl"},
-        {GL_FRAGMENT_SHADER, "./assets/shaders/fragment_shader.glsl"}
-    };
+        {GL_FRAGMENT_SHADER, "./assets/shaders/fragment_shader.glsl"}};
 
     GLuint programID = LoadShaders(shaders);
 
     // Material loading
-    std::string materialPath = "./assets/models/Goku/Goku.mtl";
+    std::string                     materialPath   = "./assets/models/Goku/Goku.mtl";
     std::map<std::string, Material> modelMaterials = loadMTLFile(materialPath);
 
     // Model Loading
-    std::filesystem::path modelPath = "./assets/models/Goku/Goku.obj";
-    std::string mPath = modelPath.string();
-    OBJData meshData = loadFromOBJ(mPath);
-    std::vector<unsigned int> indices = flattenVertices(meshData);
+    std::filesystem::path     modelPath = "./assets/models/Goku/Goku.obj";
+    std::string               mPath     = modelPath.string();
+    OBJData                   meshData  = loadFromOBJ(mPath);
+    std::vector<unsigned int> indices   = flattenVertices(meshData);
 
     // Texture Loading
     std::unordered_map<std::string, std::string> textures = {
         {"eyes.png", "./assets/models/Goku/results/eyes.DDS"},
         {"face.png", "./assets/models/Goku/results/face.DDS"},
         {"pants.png", "./assets/models/Goku/results/pants.DDS"},
-        {"shirt.png", "./assets/models/Goku/results/shirt.DDS"}
-    };
+        {"shirt.png", "./assets/models/Goku/results/shirt.DDS"}};
 
     std::unordered_map<std::string, GLuint> textureCache = {};
-    for (const auto& pair : textures) 
-    {
+    for (const auto& pair : textures) {
         textureCache.insert(std::make_pair(pair.first, loadDDSFile(pair.second)));
     }
 
@@ -105,17 +106,17 @@ int main(int argc, char** argv) {
     glBindVertexArray(0);
 
     // Setup Control Variables
-    glm::vec3 initialPosition = glm::vec3(0, 30, 50);
-    float initialHorizontalAngle = 3.14f;
-    float initialVerticalAngle = 0.0f;
-    float initialFieldOfView = 45.0f;
-    float speed = 1.0f;
-    float mouseSpeed = 0.005f;
+    glm::vec3 initialPosition        = glm::vec3(0, 30, 50);
+    float     initialHorizontalAngle = 3.14f;
+    float     initialVerticalAngle   = 0.0f;
+    float     initialFieldOfView     = 45.0f;
+    float     speed                  = 1.0f;
+    float     mouseSpeed             = 0.005f;
 
     // Setup MVP (Model View Project)
     glm::mat4 Projection = getProjectionMatrix();
-    glm::mat4 View = getViewMatrix();
-    glm::mat4 Model = glm::mat4(1.0f);
+    glm::mat4 View       = getViewMatrix();
+    glm::mat4 Model      = glm::mat4(1.0f);
 
     calculateMatricies(window, Projection, View, Model, initialHorizontalAngle, initialVerticalAngle, mouseSpeed, initialFieldOfView, initialPosition, speed);
     glm::mat4 MVP = Projection * View * Model;
@@ -129,8 +130,7 @@ int main(int argc, char** argv) {
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-    do
-    {
+    do {
         // Clear Screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -163,8 +163,7 @@ int main(int argc, char** argv) {
     glDeleteProgram(programID);
 
     // Cleanup Textures
-    for (const auto& pair : textureCache) 
-    {
+    for (const auto& pair : textureCache) {
         glDeleteTextures(1, &pair.second);
     }
     // Cleanup VAO
