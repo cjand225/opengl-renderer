@@ -1,13 +1,11 @@
-
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl3.h>
-#else
-#include <GL/gl.h>
-#include <GL/glew.h>
-#endif
-
+#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
+#else
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#endif
 
 #include <filesystem>
 #include <glm/glm.hpp>
@@ -45,10 +43,26 @@ int main(int argc, char** argv) {
 
     glfwMakeContextCurrent(window);
 
+#ifndef __APPLE__
     if (glewInit() != GLEW_OK) {
         std::cerr << "Failed to Initialize GLEW" << std::endl;
         return -1;
     }
+#endif
+
+    // Print OpenGL version info
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version  = glGetString(GL_VERSION);
+    std::cout << "Renderer: " << renderer << std::endl;
+    std::cout << "OpenGL version: " << version << std::endl;
+
+#ifdef __APPLE__
+    // Check for S3TC extension support on macOS
+    const GLubyte* extensions = glGetString(GL_EXTENSIONS);
+    if (!extensions || !strstr((const char*)extensions, "GL_EXT_texture_compression_s3tc")) {
+        std::cerr << "Warning: S3TC texture compression not supported" << std::endl;
+    }
+#endif
 
     // Setup Event Polling
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -118,7 +132,9 @@ int main(int argc, char** argv) {
     glm::mat4 View       = getViewMatrix();
     glm::mat4 Model      = glm::mat4(1.0f);
 
-    calculateMatricies(window, Projection, View, Model, initialHorizontalAngle, initialVerticalAngle, mouseSpeed, initialFieldOfView, initialPosition, speed);
+    calculateMatricies(window, Projection, View, Model, initialHorizontalAngle,
+                       initialVerticalAngle, mouseSpeed, initialFieldOfView,
+                       initialPosition, speed);
     glm::mat4 MVP = Projection * View * Model;
 
     // Get a handle for our "MVP" uniform
@@ -138,7 +154,9 @@ int main(int argc, char** argv) {
         glUseProgram(programID);
 
         // Recalculate Matricies
-        calculateMatricies(window, Projection, View, Model, initialHorizontalAngle, initialVerticalAngle, mouseSpeed, initialFieldOfView, initialPosition, speed);
+        calculateMatricies(window, Projection, View, Model, initialHorizontalAngle,
+                           initialVerticalAngle, mouseSpeed, initialFieldOfView,
+                           initialPosition, speed);
         MVP = Projection * View * Model;
 
         // Send Transformation to shader
@@ -153,7 +171,8 @@ int main(int argc, char** argv) {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
+    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+             glfwWindowShouldClose(window) == 0);
 
     // Cleanup Buffers
     glDeleteBuffers(1, &VertexBufferObject);
@@ -166,8 +185,13 @@ int main(int argc, char** argv) {
     for (const auto& pair : textureCache) {
         glDeleteTextures(1, &pair.second);
     }
+
     // Cleanup VAO
     glDeleteVertexArrays(1, &VertexArrayObject);
+
+    // Cleanup GLFW
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return 0;
 }

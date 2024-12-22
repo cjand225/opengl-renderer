@@ -8,25 +8,73 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-# Find required packages
-find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
+# Platform specific settings
+if(APPLE)
+    find_package(OpenGL REQUIRED)
+    find_package(glfw3 CONFIG REQUIRED)
+    find_package(glm CONFIG REQUIRED)
+
+    # Add M1 Mac support
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(CMAKE_OSX_ARCHITECTURES "arm64")
+    endif()
+
+    # Add macOS compile definitions
+    add_compile_definitions(GL_SILENCE_DEPRECATION)
+    add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
+else()
+    find_package(OpenGL REQUIRED)
+    find_package(glfw3 CONFIG REQUIRED)
+    find_package(GLEW REQUIRED)
+    find_package(glm CONFIG REQUIRED)
+endif()
 
 # Define source files for project
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
+
+# Define header files
+file(GLOB_RECURSE HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+)
 
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    ${HEADERS}
+)
 
-# Define header files for project
-target_include_directories(${PROJECT_NAME} PRIVATE include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+# Include directories
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
-# Link libs to executable
-target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY} glfw GLEW::GLEW)
+if(APPLE)
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            "-framework OpenGL"
+            "-framework Cocoa"
+            "-framework IOKit"
+            "-framework CoreVideo"
+            glfw
+            glm::glm
+    )
+else()
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            OpenGL::GL
+            glfw
+            GLEW::GLEW
+            glm::glm
+    )
+endif()
 
 # Copy assets directory to build directory next to the executable
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+)
