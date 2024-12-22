@@ -2,12 +2,12 @@
 #define SHADERS_H
 
 #ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
-#define GLFW_INCLUDE_GLCOREARB
-#include <GLFW/glfw3.h>
+    #define GL_SILENCE_DEPRECATION
+    #define GLFW_INCLUDE_GLCOREARB
+    #include <GLFW/glfw3.h>
 #else
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+    #include <GL/glew.h>
+    #include <GLFW/glfw3.h>
 #endif
 
 #include <string>

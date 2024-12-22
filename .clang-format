@@ -11,4 +11,7 @@ AllowShortLoopsOnASingleLine: false
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignTrailingComments: true
-...
+IndentPPDirectives: BeforeHash
+PPIndentWidth: 4
+---
+
