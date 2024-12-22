@@ -2,55 +2,88 @@
 
 ## Overview
 
-This project is a simple renderer built using OpenGL. It demonstrates the basics of 3D rendering, including loading models, applying transformations, and rendering them with custom shaders.
+This project is a simple renderer built using OpenGL. It demonstrates the basics of 3D rendering, including loading models, applying transformations, and rendering them with custom shaders. It's designed to work on modern systems with OpenGL 3.3+ support.
 
 ## Features
 
-- Model loading from OBJ files
-- Basic camera controls for viewing models from different angles
-- Simple lighting and shading through vertex and fragment shaders
-- Outline rendering for models
+- Model loading from OBJ files with material support
+- Texture loading from DDS files
+- Basic camera controls with mouse and keyboard input
+- Modern OpenGL practices using VAOs and VBOs
 - Cross-platform compatibility with Windows, macOS, and Linux
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- C++17 compatible compiler
+- [CMake](https://cmake.org/download/) 3.20 or higher
+- [vcpkg](https://github.com/Microsoft/vcpkg) accessible from command line/terminal
+- OpenGL 3.3 or higher capable GPU
 
-- C++ compiler (GCC, Clang, MSVC)
-- [CMake](https://cmake.org/download/) for building the project
-- OpenGL 3.3 or higher
-- [GLEW](http://glew.sourceforge.net/) for managing OpenGL extensions
-- [GLFW](https://www.glfw.org/) for windowing and input
-- [GLM](https://github.com/g-truc/glm) for mathematics
+The following dependencies are automatically handled by vcpkg:
 
-### Building the Project
+- GLFW3 for windowing and input
+- GLEW for OpenGL extension loading (non-macOS platforms only)
+- GLM for mathematics
+
+## Building the Project
 
 1. Clone the repository:
 
 ```sh
-    git clone git@github.com:cjand225/opengl-renderer.git
+git clone https://github.com/cjand225/opengl-renderer.git
+cd opengl-renderer
 ```
 
-2. Navigate to the project directory:
+2. Configure and build:
 
 ```sh
-    cd opengl-renderer
+# Configure using vcpkg preset
+cmake --preset=vcpkg
+
+# Build
+cmake --build build
 ```
 
-5. Run CMake to configure the project:
+## Platform-Specific Notes
 
-```sh
-   cmake -B build -S .  
+### macOS
+
+- OpenGL is deprecated on macOS but still fully functional
+- GLEW is not required and will not be installed
+- Both Intel and Apple Silicon (M1/M2) Macs are supported
+
+### Windows
+
+- Requires Visual Studio 2019 or higher with C++17 support
+- All dependencies are handled through vcpkg
+
+### Linux
+
+- Requires GCC 8+ or Clang 7+
+- May need to install OpenGL development packages:
+  ```sh
+  # Ubuntu/Debian
+  sudo apt-get install libgl1-mesa-dev
+  ```
+
+## Controls
+
+- WASD/Arrow Keys: Move camera
+- Mouse: Look around
+- ESC: Exit
+
+## Project Structure
+
+```
+.
+├── assets/            # Shader files, models, and textures
+├── include/           # Header files
+├── src/              # Source files
+├── CMakeLists.txt    # CMake build configuration
+├── vcpkg.json        # vcpkg dependencies
+└── README.md         # This file
 ```
 
-Note: If you're using a package manager, remember to specifcy the toolchain with cmake.
+## License
 
-`-DCMAKE_TOOLCHAIN_FILE=/path/to/dotcmake/file`
-
-5. Build the project with CMake:
-
-```sh
-    cmake --build build --config [Debug|Release]
-```
-
-Note: Remember to specify the build config type of either Debug or Release.
+This project is licensed under the MIT License - see the LICENSE file for details.
