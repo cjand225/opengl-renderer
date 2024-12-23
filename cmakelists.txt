@@ -13,6 +13,7 @@ if(APPLE)
     find_package(OpenGL REQUIRED)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
+    find_package(imgui CONFIG REQUIRED)
 
     # Add M1 Mac support
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -27,6 +28,7 @@ else()
     find_package(glfw3 CONFIG REQUIRED)
     find_package(GLEW REQUIRED)
     find_package(glm CONFIG REQUIRED)
+    find_package(imgui CONFIG REQUIRED)
 endif()
 
 # Define source files for project
@@ -61,6 +63,7 @@ if(APPLE)
             "-framework CoreVideo"
             glfw
             glm::glm
+            imgui::imgui
     )
 else()
     target_link_libraries(${PROJECT_NAME}
@@ -69,6 +72,7 @@ else()
             glfw
             GLEW::GLEW
             glm::glm
+            imgui::imgui
     )
 endif()
 
