@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
         .radius      = 50.0f,
         .theta       = 0.0f,
         .phi         = static_cast<float>(M_PI) / 4.0f,
-        .target      = glm::vec3(0.0f),
+        .target      = glm::vec3(0.0f, 20.0f, 0.0f),
         .minRadius   = 2.0f,
         .maxRadius   = 100.0f,
         .zoomSpeed   = 2.0f,
