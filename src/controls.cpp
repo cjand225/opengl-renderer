@@ -1,87 +1,56 @@
+#include <cmath>
+
 #include "controls.h"
 
-glm::mat4 getProjectionMatrix() {
-    return glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-}
-
-glm::mat4 getViewMatrix() {
-    // Camera
-    return glm::lookAt(
-        glm::vec3(40, 40, 10),  // Camera Location in World Space
-        glm::vec3(-40, 0, 0),   // Look at Origin, 40 units to right
-        glm::vec3(0, 1, 0)      // Head is up
+glm::vec3 sphericalToCartesian(float radius, float theta, float phi) {
+    return glm::vec3(
+        radius * sin(phi) * cos(theta),  // x
+        radius * cos(phi),               // y
+        radius * sin(phi) * sin(theta)   // z
     );
 }
 
-glm::vec2 getMousePosition(GLFWwindow* window) {
+void updateOrbitalCamera(GLFWwindow* window, OrbitalCamera& camera) {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    return glm::vec2(xpos, ypos);
-}
 
-float calculateAngle(GLFWwindow* window, double& position) {
-    return 0.0f;
-}
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
 
-glm::vec3 calculateRightHand(const float& horizontalAngle) {
-    return glm::vec3(
-        sin(horizontalAngle - 3.14f / 2.0f),
-        0,
-        cos(horizontalAngle - 3.14f / 2.0f));
-}
+    float deltaTheta = camera.rotateSpeed * float(width / 2 - xpos);
+    float deltaPhi   = camera.rotateSpeed * float(height / 2 - ypos);
 
-glm::vec3 calculateDirection(const float& verticleAngle, const float& horizontalAngle) {
-    return glm::vec3(
-        cos(verticleAngle) * sin(horizontalAngle),
-        sin(verticleAngle),
-        cos(verticleAngle) * cos(horizontalAngle));
-}
+    camera.theta += deltaTheta;
+    camera.phi = glm::clamp(camera.phi + deltaPhi, 0.1f, static_cast<float>(M_PI - 0.1));
 
-void calculatePosition(GLFWwindow* window, glm::vec3& position, const glm::vec3& direction, const glm::vec3& right, const float& deltaTime, const float& speed) {
-    // Move Forward
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        position += direction * deltaTime * speed;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        camera.radius = glm::clamp(camera.radius - camera.zoomSpeed, camera.minRadius, camera.maxRadius);
     }
-    // Move backward
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        position -= direction * deltaTime * speed;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        camera.radius = glm::clamp(camera.radius + camera.zoomSpeed, camera.minRadius, camera.maxRadius);
     }
-    // Strafe right
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        position += right * deltaTime * speed;
-    }
-    // Strafe left
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        position -= right * deltaTime * speed;
-    }
+
+    glfwSetCursorPos(window, width / 2, height / 2);
 }
 
-void calculateMatricies(GLFWwindow* window, glm::mat4& projection, glm::mat4& view, glm::mat4& model, float& horizontalAngle, float& verticalAngle, const float& mouseSpeed, const float& initialFieldOfView, glm::vec3& position, const float& speed) {
-    static double lastTime = glfwGetTime();
+glm::mat4 getOrbitalViewMatrix(const OrbitalCamera& camera) {
+    glm::vec3 eye = sphericalToCartesian(camera.radius, camera.theta, camera.phi);
+    return glm::lookAt(
+        eye + camera.target,         // Camera position
+        camera.target,               // Look at target
+        glm::vec3(0.0f, 1.0f, 0.0f)  // Up vector
+    );
+}
 
-    double currentTime = glfwGetTime();
-    float  deltaTime   = float(currentTime - lastTime);
+void calculateMatricies(GLFWwindow* window, OrbitalCamera& camera, glm::mat4& projection, glm::mat4& view, glm::mat4& model) {
+    updateOrbitalCamera(window, camera);
 
-    // Get Mouse Position
-    glm::vec2 mousePosition = getMousePosition(window);
-    glfwSetCursorPos(window, 1024 / 2, 768 / 2);
+    glm::vec3 eye = sphericalToCartesian(camera.radius, camera.theta, camera.phi);
+    view          = glm::lookAt(
+        eye + camera.target,
+        camera.target,
+        glm::vec3(0.0f, 1.0f, 0.0f));
 
-    // Calculate Angles
-    horizontalAngle += mouseSpeed * float(1024 / 2 - mousePosition.x);
-    verticalAngle += mouseSpeed * float(768 / 2 - mousePosition.y);
-
-    // Calculate Vectors
-    glm::vec3 direction = calculateDirection(verticalAngle, horizontalAngle);
-    glm::vec3 right     = calculateRightHand(horizontalAngle);
-    glm::vec3 up        = glm::cross(right, direction);
-    calculatePosition(window, position, direction, right, deltaTime, speed);
-
-    float fieldOfView = initialFieldOfView;
-
-    projection = glm::perspective(glm::radians(fieldOfView), 4.0f / 3.0f, 0.1f, 100.0f);
-
-    view = glm::lookAt(
-        position,
-        position + direction,
-        up);
+    projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+    model      = glm::mat4(1.0f);
 }

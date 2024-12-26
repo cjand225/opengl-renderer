@@ -120,21 +120,22 @@ int main(int argc, char** argv) {
     glBindVertexArray(0);
 
     // Setup Control Variables
-    glm::vec3 initialPosition        = glm::vec3(0, 30, 50);
-    float     initialHorizontalAngle = 3.14f;
-    float     initialVerticalAngle   = 0.0f;
-    float     initialFieldOfView     = 45.0f;
-    float     speed                  = 1.0f;
-    float     mouseSpeed             = 0.005f;
+    OrbitalCamera camera{
+        .radius      = 50.0f,
+        .theta       = 0.0f,
+        .phi         = static_cast<float>(M_PI) / 4.0f,
+        .target      = glm::vec3(0.0f),
+        .minRadius   = 2.0f,
+        .maxRadius   = 100.0f,
+        .zoomSpeed   = 2.0f,
+        .rotateSpeed = 0.005f};
 
     // Setup MVP (Model View Project)
-    glm::mat4 Projection = getProjectionMatrix();
-    glm::mat4 View       = getViewMatrix();
-    glm::mat4 Model      = glm::mat4(1.0f);
+    glm::mat4 Projection;
+    glm::mat4 View;
+    glm::mat4 Model = glm::mat4(1.0f);
 
-    calculateMatricies(window, Projection, View, Model, initialHorizontalAngle,
-                       initialVerticalAngle, mouseSpeed, initialFieldOfView,
-                       initialPosition, speed);
+    calculateMatricies(window, camera, Projection, View, Model);
     glm::mat4 MVP = Projection * View * Model;
 
     // Get a handle for our "MVP" uniform
@@ -150,13 +151,15 @@ int main(int argc, char** argv) {
         // Clear Screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Poll
+        updateOrbitalCamera(window, camera);
+
         // Apply Shaders
         glUseProgram(programID);
 
         // Recalculate Matricies
-        calculateMatricies(window, Projection, View, Model, initialHorizontalAngle,
-                           initialVerticalAngle, mouseSpeed, initialFieldOfView,
-                           initialPosition, speed);
+        calculateMatricies(window, camera, Projection, View, Model);
+
         MVP = Projection * View * Model;
 
         // Send Transformation to shader
