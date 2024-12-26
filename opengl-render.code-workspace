@@ -95,17 +95,29 @@
         // Terminal
         "terminal.integrated.defaultProfile.windows": "Command Prompt",
         "terminal.integrated.defaultProfile.linux": "bash",
-        "terminal.integrated.defaultProfile.osx": "bash",
+        "terminal.integrated.defaultProfile.osx": "zsh",
 
         // Clang-format settings
         "clang-format.executable": "clang-format",
         "clang-format.assumeFilename": ".clang-format",
         "clang-format.style": "file",
-        "clang-format.fallbackStyle": "Google"
+        "clang-format.fallbackStyle": "Google",
+        "C_Cpp.default.includePath": [
+            "${workspaceFolder}/**",
+            "${vcpkgRoot}/installed/x64-osx/include",
+            "/opt/homebrew/include"
+        ],
+        "C_Cpp.default.macFrameworkPath": [
+            "/Library/Developer/CommandLineTools/SDKs/MacOS.sdk/System/Library/Frameworks"
+        ],
+        "C_Cpp.default.compilerPath": "/usr/bin/clang++",
+        "C_Cpp.default.cStandard": "c17",
+        "C_Cpp.default.cppStandard": "c++17",
+        "C_Cpp.default.intelliSenseMode": "macos-clang-x64"
     },
     "extensions": {
         "recommendations": [
             "xaver.clang-format"
         ]
     }
-}
+ }
