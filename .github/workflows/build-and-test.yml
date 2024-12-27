@@ -16,7 +16,16 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxmu-dev libxi-dev libgl-dev
+          sudo apt-get install -y \
+            libxmu-dev \
+            libxi-dev \
+            libgl-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            xorg-dev \
+            libglu1-mesa-dev \
+            pkg-config \
+            ninja-build
 
       - name: Install vcpkg
         run: |
