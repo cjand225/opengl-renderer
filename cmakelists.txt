@@ -14,6 +14,7 @@ if(APPLE)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(GTest CONFIG REQUIRED)
 
     # Add M1 Mac support
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -29,12 +30,12 @@ else()
     find_package(GLEW REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(GTest CONFIG REQUIRED)
 endif()
 
-# Define source files for project
-file(GLOB_RECURSE SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-)
+# Define source files
+file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
+list(REMOVE_ITEM LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
 # Define header files
 file(GLOB_RECURSE HEADERS
@@ -42,41 +43,40 @@ file(GLOB_RECURSE HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
 
-# Create the executable
-add_executable(${PROJECT_NAME}
-    ${SOURCES}
-    ${HEADERS}
-)
+# Create library target
+add_library(${PROJECT_NAME}_lib ${LIB_SOURCES} ${HEADERS})
+target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
-# Include directories
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
+# Link platform-specific libraries to lib target
 if(APPLE)
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-            "-framework OpenGL"
-            "-framework Cocoa"
-            "-framework IOKit"
-            "-framework CoreVideo"
-            glfw
-            glm::glm
-            imgui::imgui
+    target_link_libraries(${PROJECT_NAME}_lib PUBLIC
+        "-framework OpenGL"
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework CoreVideo"
+        glfw
+        glm::glm
+        imgui::imgui
     )
 else()
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-            OpenGL::GL
-            glfw
-            GLEW::GLEW
-            glm::glm
-            imgui::imgui
+    target_link_libraries(${PROJECT_NAME}_lib PUBLIC
+        OpenGL::GL
+        glfw
+        GLEW::GLEW
+        glm::glm
+        imgui::imgui
     )
 endif()
 
-# Copy assets directory to build directory next to the executable
+# Create executable target
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
+
+# Enable testing
+enable_testing()
+add_subdirectory(tests)
+
+# Copy assets directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
