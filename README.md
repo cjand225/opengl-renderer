@@ -76,12 +76,13 @@ cmake --build build
 
 ```
 .
-├── assets/            # Shader files, models, and textures
-├── include/           # Header files
-├── src/              # Source files
-├── CMakeLists.txt    # CMake build configuration
-├── vcpkg.json        # vcpkg dependencies
-└── README.md         # This file
+├── assets/             # Shader files, models, and textures
+├── include/            # Header files
+├── src/                # Source files
+├── tests/              # Test files
+├── CMakeLists.txt      # CMake build configuration
+├── vcpkg.json          # vcpkg dependencies
+└── README.md           # This file
 ```
 
 ## License
