@@ -35,3 +35,6 @@ build/
 
 # Custom Scripts
 build.bat
+
+# vcpkg
+vcpkg_installed/
