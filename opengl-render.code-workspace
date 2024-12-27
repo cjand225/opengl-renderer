@@ -105,7 +105,8 @@
         "C_Cpp.default.includePath": [
             "${workspaceFolder}/**",
             "${vcpkgRoot}/installed/x64-osx/include",
-            "/opt/homebrew/include"
+            "/opt/homebrew/include",
+            "/Users/${env:USER}/repositories/vcpkg/installed/arm64-osx/include"
         ],
         "C_Cpp.default.macFrameworkPath": [
             "/Library/Developer/CommandLineTools/SDKs/MacOS.sdk/System/Library/Frameworks"
