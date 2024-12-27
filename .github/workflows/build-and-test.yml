@@ -35,11 +35,6 @@ jobs:
       - name: Install dependencies
         run: ./vcpkg/vcpkg install
 
-      - name: Check directory
-        run: |
-          pwd
-          ls -la
-
       - name: Configure CMake
         run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
 
