@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
         .minRadius   = 2.0f,
         .maxRadius   = 100.0f,
         .zoomSpeed   = 2.0f,
-        .rotateSpeed = 0.005f};
+        .rotateSpeed = 20.0f};
 
     // Setup MVP (Model View Project)
     glm::mat4 Projection;

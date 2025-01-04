@@ -11,14 +11,20 @@ glm::vec3 sphericalToCartesian(float radius, float theta, float phi) {
 }
 
 void updateOrbitalCamera(GLFWwindow* window, OrbitalCamera& camera) {
+    // Grab Delta time to smooth out frames
+    static double lastTime    = glfwGetTime();
+    double        currentTime = glfwGetTime();
+    float         deltaTime   = float(currentTime - lastTime);
+    lastTime                  = currentTime;
+
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
 
     int width, height;
     glfwGetWindowSize(window, &width, &height);
 
-    float deltaTheta = camera.rotateSpeed * float(width / 2 - xpos);
-    float deltaPhi   = camera.rotateSpeed * float(height / 2 - ypos);
+    float deltaTheta = camera.rotateSpeed * deltaTime * (float(width / 2 - xpos) / float(width));
+    float deltaPhi   = camera.rotateSpeed * deltaTime * (float(height / 2 - ypos) / float(height));
 
     camera.theta += deltaTheta;
     camera.phi = glm::clamp(camera.phi + deltaPhi, 0.1f, static_cast<float>(M_PI - 0.1));
@@ -47,9 +53,9 @@ void calculateMatricies(GLFWwindow* window, OrbitalCamera& camera, glm::mat4& pr
 
     glm::vec3 eye = sphericalToCartesian(camera.radius, camera.theta, camera.phi);
     view          = glm::lookAt(
-        eye + camera.target,
-        camera.target,
-        glm::vec3(0.0f, 1.0f, 0.0f));
+                 eye + camera.target,
+                 camera.target,
+                 glm::vec3(0.0f, 1.0f, 0.0f));
 
     projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
     model      = glm::mat4(1.0f);
