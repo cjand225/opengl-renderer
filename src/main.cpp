@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
         {GL_FRAGMENT_SHADER, "./assets/shaders/fragment_shader.glsl"}};
 
     GLuint programID = LoadShaders(shaders);
+    glUseProgram(programID);
 
     // Material loading
     std::string                     materialPath   = "./assets/models/Goku/Goku.mtl";
@@ -105,23 +106,25 @@ int main(int argc, char** argv) {
     glGenVertexArrays(1, &VertexArrayObject);
     glGenBuffers(1, &VertexBufferObject);
     glGenBuffers(1, &ElementBufferObject);
+    glGenBuffers(1, &UVBuffer);
 
     glBindVertexArray(VertexArrayObject);
 
+    // Position Buffer
     glBindBuffer(GL_ARRAY_BUFFER, VertexBufferObject);
     glBufferData(GL_ARRAY_BUFFER, meshData.vertices.size() * sizeof(Vertex), &meshData.vertices[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // UV buffer
     glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
     glBufferData(GL_ARRAY_BUFFER, uvIndices.size() * sizeof(UV), &uvIndices[0], GL_STATIC_DRAW);
-
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(UV), (void*)0);
     glEnableVertexAttribArray(1);
+
+    // Element Buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     // Unbind VAO
     glBindVertexArray(0);
@@ -155,7 +158,11 @@ int main(int argc, char** argv) {
     glm::mat4 MVP = Projection * View * Model;
 
     // Get a handle for our "MVP" uniform
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+    GLuint MatrixID         = glGetUniformLocation(programID, "MVP");
+    GLuint textureSamplerID = glGetUniformLocation(programID, "textureSampler");
+
+    std::cout << "MVP uniform location: " << MatrixID << std::endl;
+    std::cout << "Texture sampler uniform location: " << textureSamplerID << std::endl;
 
     // Setup before loop
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -173,7 +180,13 @@ int main(int argc, char** argv) {
         // Apply Shaders
         glUseProgram(programID);
 
+        // Bind Textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureCache["face.png"]);  // Try with face texture first
+        glUniform1i(textureSamplerID, 0);
+
         // Recalculate Matricies
+
         calculateMatricies(window, camera, Projection, View, Model);
 
         MVP = Projection * View * Model;
