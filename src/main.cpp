@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
     // Setup Event Polling
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwPollEvents();
     glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
@@ -127,8 +127,12 @@ int main(int argc, char** argv) {
         .target      = glm::vec3(0.0f, 20.0f, 0.0f),
         .minRadius   = 2.0f,
         .maxRadius   = 100.0f,
-        .zoomSpeed   = 2.0f,
-        .rotateSpeed = 20.0f};
+        .zoomSpeed   = 5.0f,
+        .rotateSpeed = 100.0f};
+
+    // Setup scrolling callback
+    glfwSetWindowUserPointer(window, &camera);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Setup MVP (Model View Project)
     glm::mat4 Projection;

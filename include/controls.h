@@ -21,5 +21,6 @@ glm::mat4 getOrbitalViewMatrix(const OrbitalCamera& camera);
 glm::vec3 sphericalToCartesian(float radius, float theta, float phi);
 void      updateOrbitalCamera(GLFWwindow* window, OrbitalCamera& camera);
 void      calculateMatricies(GLFWwindow* window, OrbitalCamera& camera, glm::mat4& projection, glm::mat4& view, glm::mat4& model);
+void      scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 #endif  // CONTROLS_H

@@ -11,32 +11,49 @@ glm::vec3 sphericalToCartesian(float radius, float theta, float phi) {
 }
 
 void updateOrbitalCamera(GLFWwindow* window, OrbitalCamera& camera) {
-    // Grab Delta time to smooth out frames
-    static double lastTime    = glfwGetTime();
-    double        currentTime = glfwGetTime();
-    float         deltaTime   = float(currentTime - lastTime);
-    lastTime                  = currentTime;
+    static double lastTime = glfwGetTime();
+    static double lastXpos = 0.0, lastYpos = 0.0;
+    static bool   firstMouse = true;
 
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
+    double currentTime = glfwGetTime();
+    float  deltaTime   = float(currentTime - lastTime);
+    lastTime           = currentTime;
 
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
 
-    float deltaTheta = camera.rotateSpeed * deltaTime * (float(width / 2 - xpos) / float(width));
-    float deltaPhi   = camera.rotateSpeed * deltaTime * (float(height / 2 - ypos) / float(height));
+        if (firstMouse) {
+            lastXpos   = xpos;
+            lastYpos   = ypos;
+            firstMouse = false;
+        }
 
-    camera.theta += deltaTheta;
-    camera.phi = glm::clamp(camera.phi + deltaPhi, 0.1f, static_cast<float>(M_PI - 0.1));
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        camera.radius = glm::clamp(camera.radius - camera.zoomSpeed, camera.minRadius, camera.maxRadius);
+        float deltaTheta = camera.rotateSpeed * deltaTime * (float(lastXpos - xpos) / float(width));
+        float deltaPhi   = camera.rotateSpeed * deltaTime * (float(lastYpos - ypos) / float(height));
+
+        camera.theta += deltaTheta;
+        camera.phi = glm::clamp(camera.phi + deltaPhi, 0.1f, static_cast<float>(M_PI - 0.1));
+
+        lastXpos = xpos;
+        lastYpos = ypos;
+    } else {
+        firstMouse = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        camera.radius = glm::clamp(camera.radius + camera.zoomSpeed, camera.minRadius, camera.maxRadius);
-    }
+}
 
-    glfwSetCursorPos(window, width / 2, height / 2);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    // Get the user pointer that was set
+    OrbitalCamera* camera = static_cast<OrbitalCamera*>(glfwGetWindowUserPointer(window));
+    if (camera) {
+        camera->radius = glm::clamp(
+            camera->radius - (float)yoffset * camera->zoomSpeed,
+            camera->minRadius,
+            camera->maxRadius);
+    }
 }
 
 glm::mat4 getOrbitalViewMatrix(const OrbitalCamera& camera) {
