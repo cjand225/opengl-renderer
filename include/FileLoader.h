@@ -84,6 +84,7 @@ struct DDS_HEADER {
 OBJData                         loadFromOBJ(std::string& filename);
 std::map<std::string, Material> loadMTLFile(std::string& filename);
 std::vector<unsigned int>       flattenVertices(OBJData& meshData);
+std::vector<UV>                 flattenUVs(OBJData& meshData);
 GLuint                          loadDDSFile(const std::string& filename);
 
 const GLuint DDS_MAGIC        = 0x20534444;  // "DDS " Header

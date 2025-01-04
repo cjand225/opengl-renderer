@@ -63,6 +63,21 @@ std::vector<unsigned int> flattenVertices(OBJData& meshData) {
     return indices;
 }
 
+std::vector<UV> flattenUVs(OBJData& meshData) {
+    std::vector<UV> uvs;
+    for (const Face& face : meshData.faces) {
+        for (int index : face.vertexIndices) {
+            if (index < meshData.UVs.size()) {
+                uvs.push_back(meshData.UVs[index]);
+            } else {
+                UV defaultUV = {0.0f, 0.0f, 0.0f};
+                uvs.push_back(defaultUV);
+            }
+        }
+    }
+    return uvs;
+}
+
 std::map<std::string, Material> loadMTLFile(std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {

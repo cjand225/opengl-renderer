@@ -86,6 +86,7 @@ int main(int argc, char** argv) {
     std::string               mPath     = modelPath.string();
     OBJData                   meshData  = loadFromOBJ(mPath);
     std::vector<unsigned int> indices   = flattenVertices(meshData);
+    std::vector<UV>           uvIndices = flattenUVs(meshData);
 
     // Texture Loading
     std::unordered_map<std::string, std::string> textures = {
@@ -100,7 +101,7 @@ int main(int argc, char** argv) {
     }
 
     // Setup VAO
-    GLuint VertexBufferObject, ElementBufferObject, VertexArrayObject;
+    GLuint VertexBufferObject, ElementBufferObject, VertexArrayObject, UVBuffer;
     glGenVertexArrays(1, &VertexArrayObject);
     glGenBuffers(1, &VertexBufferObject);
     glGenBuffers(1, &ElementBufferObject);
@@ -115,6 +116,12 @@ int main(int argc, char** argv) {
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvIndices.size() * sizeof(UV), &uvIndices[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(UV), (void*)0);
+    glEnableVertexAttribArray(1);
 
     // Unbind VAO
     glBindVertexArray(0);
@@ -189,6 +196,7 @@ int main(int argc, char** argv) {
     // Cleanup Buffers
     glDeleteBuffers(1, &VertexBufferObject);
     glDeleteBuffers(1, &ElementBufferObject);
+    glDeleteBuffers(1, &UVBuffer);
 
     // Cleanup Programs
     glDeleteProgram(programID);
