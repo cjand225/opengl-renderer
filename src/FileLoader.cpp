@@ -128,66 +128,118 @@ std::map<std::string, Material> loadMTLFile(std::string& filename) {
 }
 
 GLuint loadDDSFile(const std::string& filename) {
+    std::cout << "Loading texture: " << filename << std::endl;
+
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file: " + filename);
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return 0;
     }
 
+    // Read magic number
     GLuint magicNumber;
     file.read(reinterpret_cast<char*>(&magicNumber), sizeof(magicNumber));
+    std::cout << "Magic number: " << std::hex << magicNumber << " (should be " << DDS_MAGIC << ")" << std::dec << std::endl;
+
     if (magicNumber != DDS_MAGIC) {
         std::cerr << "Not a DDS file: " << filename << std::endl;
+        file.close();
         return 0;
     }
 
+    // Read header
     DDS_HEADER header;
     file.read(reinterpret_cast<char*>(&header), sizeof(header));
-    if (header.ddspf.flags != DDPF_FOURCC) {
-        std::cerr << "Unsupported Format (Only DXT1, DXT3, DXT5 are supported)"
-                  << std::endl;
-        return 0;
-    }
+    std::cout << "Texture dimensions: " << header.width << "x" << header.height << std::endl;
+    std::cout << "Format flags: " << std::hex << header.ddspf.flags << std::dec << std::endl;
+    std::cout << "FourCC: " << std::hex << header.ddspf.fourCC << std::dec << std::endl;
 
-    GLuint blockSize = (header.ddspf.fourCC == FOURCC_DXT1) ? 8 : 16;
+    // Determine format and block size
     GLuint format;
+    GLuint blockSize;
     switch (header.ddspf.fourCC) {
         case FOURCC_DXT1:
-            format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            format    = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            blockSize = 8;
+            std::cout << "Format: DXT1" << std::endl;
             break;
         case FOURCC_DXT3:
-            format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            format    = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            blockSize = 16;
+            std::cout << "Format: DXT3" << std::endl;
             break;
         case FOURCC_DXT5:
-            format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            format    = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            blockSize = 16;
+            std::cout << "Format: DXT5" << std::endl;
             break;
         default:
-            std::cerr << "Unsupported DXT format" << std::endl;
-            return 0;
+            // Try to handle uncompressed textures
+            if (header.ddspf.RGBBitCount == 32 &&
+                header.ddspf.RBitMask == 0x000000ff &&
+                header.ddspf.GBitMask == 0x0000ff00 &&
+                header.ddspf.BBitMask == 0x00ff0000 &&
+                header.ddspf.ABitMask == 0xff000000) {
+                format    = GL_RGBA;
+                blockSize = 4;
+                std::cout << "Format: Uncompressed RGBA" << std::endl;
+            } else {
+                std::cerr << "Unsupported format. FourCC: " << header.ddspf.fourCC
+                          << " RGB bits: " << header.ddspf.RGBBitCount
+                          << " Flags: " << header.ddspf.flags << std::endl;
+                file.close();
+                return 0;
+            }
     }
 
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
+    // Set basic parameters - simplified for debugging
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // Read mipmaps
-    unsigned int bufferSize = std::max(
-        header.pitchOrLinearSize, header.width * header.height * blockSize / 8);
-    std::vector<unsigned char> buffer(bufferSize);
-    for (GLuint level = 0;
-         level < header.mipMapCount && (header.width || header.height); level++) {
-        unsigned int size =
-            ((header.width + 3) / 4) * ((header.height + 3) / 4) * blockSize;
-        file.read(reinterpret_cast<char*>(buffer.data()), size);
-        glCompressedTexImage2D(GL_TEXTURE_2D, level, format, header.width,
-                               header.height, 0, size, buffer.data());
-
-        header.width /= 2;
-        header.height /= 2;
+    // Load texture data
+    unsigned int bufferSize;
+    if (format == GL_RGBA) {
+        // Uncompressed
+        bufferSize = header.width * header.height * blockSize;
+    } else {
+        // Compressed
+        bufferSize = std::max<unsigned int>(header.pitchOrLinearSize,
+                                            ((header.width + 3) / 4) * ((header.height + 3) / 4) * blockSize);
     }
+
+    std::vector<unsigned char> buffer(bufferSize);
+    file.read(reinterpret_cast<char*>(buffer.data()), bufferSize);
+
+    std::cout << "Loading texture: " << header.width << "x" << header.height
+              << " Buffer size: " << bufferSize << std::endl;
+
+    if (format == GL_RGBA) {
+        // Uncompressed texture
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, header.width, header.height,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
+    } else {
+        // Compressed texture
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, header.width, header.height,
+                               0, bufferSize, buffer.data());
+    }
+
+    // Check for errors
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        std::cerr << "OpenGL error while loading texture: " << err << std::endl;
+    }
+
+    // Verify texture was loaded
+    GLint texWidth, texHeight;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
+    std::cout << "OpenGL reports texture dimensions: " << texWidth << "x" << texHeight << std::endl;
 
     file.close();
     return textureID;
