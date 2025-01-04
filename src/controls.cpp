@@ -56,6 +56,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     }
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    // Update viewport to new window size
+    glViewport(0, 0, width, height);
+
+    // Update the projection matrix in the camera
+    OrbitalCamera* camera = static_cast<OrbitalCamera*>(glfwGetWindowUserPointer(window));
+    if (camera) {
+        // Use the new aspect ratio
+        camera->aspectRatio = float(width) / float(height);
+    }
+}
+
 glm::mat4 getOrbitalViewMatrix(const OrbitalCamera& camera) {
     glm::vec3 eye = sphericalToCartesian(camera.radius, camera.theta, camera.phi);
     return glm::lookAt(
@@ -74,6 +86,6 @@ void calculateMatricies(GLFWwindow* window, OrbitalCamera& camera, glm::mat4& pr
                  camera.target,
                  glm::vec3(0.0f, 1.0f, 0.0f));
 
-    projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), camera.aspectRatio, 0.1f, 100.0f);
     model      = glm::mat4(1.0f);
 }

@@ -15,6 +15,7 @@ struct OrbitalCamera {
     float     maxRadius   = 100.0f;  // Maximum zoom distance
     float     zoomSpeed   = 2.0f;    // Zoom sensitivity
     float     rotateSpeed = 0.005f;  // Rotation sensitivity
+    float     aspectRatio;           // Window Resizing
 };
 
 glm::mat4 getOrbitalViewMatrix(const OrbitalCamera& camera);
@@ -22,5 +23,6 @@ glm::vec3 sphericalToCartesian(float radius, float theta, float phi);
 void      updateOrbitalCamera(GLFWwindow* window, OrbitalCamera& camera);
 void      calculateMatricies(GLFWwindow* window, OrbitalCamera& camera, glm::mat4& projection, glm::mat4& view, glm::mat4& model);
 void      scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void      framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 #endif  // CONTROLS_H

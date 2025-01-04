@@ -120,6 +120,9 @@ int main(int argc, char** argv) {
     glBindVertexArray(0);
 
     // Setup Control Variables
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
     OrbitalCamera camera{
         .radius      = 50.0f,
         .theta       = 0.0f,
@@ -128,11 +131,13 @@ int main(int argc, char** argv) {
         .minRadius   = 2.0f,
         .maxRadius   = 100.0f,
         .zoomSpeed   = 5.0f,
-        .rotateSpeed = 1000.0f};
+        .rotateSpeed = 1000.0f,
+        .aspectRatio = float(width) / float(height)};
 
-    // Setup scrolling callback
+    // Setup callbacks
     glfwSetWindowUserPointer(window, &camera);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Setup MVP (Model View Project)
     glm::mat4 Projection;
