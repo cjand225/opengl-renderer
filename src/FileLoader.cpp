@@ -16,7 +16,9 @@ OBJData loadFromOBJ(std::string& filename) {
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string        prefix = "";
+        std::string        prefix              = "";
+        std::string        currentMaterialName = "";
+
         iss >> prefix;
 
         if (prefix == "v") {
@@ -33,8 +35,11 @@ OBJData loadFromOBJ(std::string& filename) {
             }
 
             data.UVs.push_back(uv);
+        } else if (prefix == "usemtl") {
+            iss >> currentMaterialName;
         } else if (prefix == "f") {
-            Face        face;
+            Face face;
+            face.materialName = currentMaterialName;
             std::string vertexDef;
             while (iss >> vertexDef) {
                 std::istringstream vertexStream(vertexDef);

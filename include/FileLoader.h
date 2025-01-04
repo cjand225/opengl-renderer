@@ -30,6 +30,7 @@ struct Vertex {
 
 struct Face {
     std::vector<int> vertexIndices;
+    std::string      materialName;
 };
 
 struct UV {
