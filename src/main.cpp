@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
         .minRadius   = 2.0f,
         .maxRadius   = 100.0f,
         .zoomSpeed   = 5.0f,
-        .rotateSpeed = 100.0f};
+        .rotateSpeed = 1000.0f};
 
     // Setup scrolling callback
     glfwSetWindowUserPointer(window, &camera);
