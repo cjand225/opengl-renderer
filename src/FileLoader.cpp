@@ -22,7 +22,16 @@ OBJData loadFromOBJ(std::string& filename) {
 
         iss >> prefix;
 
-        if (prefix == "v") {
+        if (prefix == "mtllib") {
+            std::string materialFile;
+            iss >> materialFile;
+            materialFile   = std::filesystem::path(filename).parent_path() / materialFile;
+            data.materials = loadMTLFile(materialFile);
+        } else if (prefix == "usemtl") {
+            iss >> currentMaterialName;
+        } else if (prefix == "o") {
+            iss >> data.objectName;
+        } else if (prefix == "v") {
             Vertex vertex;
             iss >> vertex.x >> vertex.y >> vertex.z;
             data.vertices.push_back(vertex);
@@ -36,8 +45,6 @@ OBJData loadFromOBJ(std::string& filename) {
             }
 
             data.UVs.push_back(uv);
-        } else if (prefix == "usemtl") {
-            iss >> currentMaterialName;
         } else if (prefix == "f") {
             Face face;
             face.materialName = currentMaterialName;
@@ -52,11 +59,6 @@ OBJData loadFromOBJ(std::string& filename) {
             }
 
             data.faces.push_back(face);
-        } else if (prefix == "mtllib") {
-            std::string materialFile;
-            iss >> materialFile;
-            materialFile   = std::filesystem::path(filename).parent_path() / materialFile;
-            data.materials = loadMTLFile(materialFile);
         }
     }
 

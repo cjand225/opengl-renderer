@@ -77,6 +77,7 @@ struct DDS_HEADER {
 };
 
 struct OBJData {
+    std::string                     objectName;
     std::vector<Vertex>             vertices;
     std::vector<Face>               faces;
     std::vector<UV>                 UVs;
