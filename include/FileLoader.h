@@ -37,12 +37,6 @@ struct UV {
     float u, v, w;
 };
 
-struct OBJData {
-    std::vector<Vertex> vertices;
-    std::vector<Face>   faces;
-    std::vector<UV>     UVs;
-};
-
 struct Material {
     std::string name;
     glm::vec3   ambient;
@@ -80,6 +74,13 @@ struct DDS_HEADER {
     GLuint          caps3;
     GLuint          caps4;
     GLuint          reserved2;
+};
+
+struct OBJData {
+    std::vector<Vertex>             vertices;
+    std::vector<Face>               faces;
+    std::vector<UV>                 UVs;
+    std::map<std::string, Material> materials;
 };
 
 OBJData                         loadFromOBJ(std::string& filename);

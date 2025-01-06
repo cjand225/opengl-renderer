@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -51,6 +52,11 @@ OBJData loadFromOBJ(std::string& filename) {
             }
 
             data.faces.push_back(face);
+        } else if (prefix == "mtllib") {
+            std::string materialFile;
+            iss >> materialFile;
+            materialFile   = std::filesystem::path(filename).parent_path() / materialFile;
+            data.materials = loadMTLFile(materialFile);
         }
     }
 
