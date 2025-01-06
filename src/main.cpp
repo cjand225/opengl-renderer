@@ -87,10 +87,10 @@ int main(int argc, char** argv) {
 
     // Texture Loading
     std::unordered_map<std::string, std::string> textures = {
-        {"eyes.png", "./assets/models/Goku/results/eyes.DDS"},
-        {"face.png", "./assets/models/Goku/results/face.DDS"},
-        {"pants.png", "./assets/models/Goku/results/pants.DDS"},
-        {"shirt.png", "./assets/models/Goku/results/shirt.DDS"}};
+        {"eyes.png", "./assets/models/Goku/eyes.DDS"},
+        {"face.png", "./assets/models/Goku/face.DDS"},
+        {"pants.png", "./assets/models/Goku/pants.DDS"},
+        {"shirt.png", "./assets/models/Goku/shirt.DDS"}};
 
     std::unordered_map<std::string, GLuint> textureCache = {};
     for (const auto& pair : textures) {
