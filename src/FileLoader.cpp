@@ -113,6 +113,21 @@ std::map<std::string, Material> loadMTLFile(std::string& filename) {
             }
             currentMaterial = Material();
             iss >> currentMaterial.name;
+
+            // Load texture into material struct
+            std::filesystem::path parent       = std::filesystem::path(filename).parent_path();
+            std::filesystem::path materialName = parent / currentMaterial.name;
+            materialName.replace_extension(".dds");
+
+            if (!std::filesystem::exists(materialName)) {
+                // Assume that we'll replace this and load the default file format if a .dds isn't found later.
+                throw new std::invalid_argument("Convert textures to .dds format, other formats unsupported.");
+            }
+
+            currentMaterial.texture = loadDDSFile(materialName);
+
+            std::cout << currentMaterial.texture << std::endl;
+
         } else if (prefix == "Ka") {
             iss >> currentMaterial.ambient.r >> currentMaterial.ambient.g >>
                 currentMaterial.ambient.b;

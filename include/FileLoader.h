@@ -46,6 +46,7 @@ struct Material {
     float       transparency;
     std::string diffuseMapPath;
     int         illumination;
+    GLuint      texture;
 };
 
 struct DDS_PIXELFORMAT {
