@@ -78,18 +78,40 @@ struct DDS_HEADER {
 };
 
 struct OBJData {
-    std::string                     objectName;
-    std::vector<Vertex>             vertices;
-    std::vector<Face>               faces;
-    std::vector<UV>                 UVs;
-    std::map<std::string, Material> materials;
+    std::string                              objectName;
+    std::vector<Vertex>                      vertices;
+    std::vector<UV>                          UVs;
+    std::map<std::string, Material>          materials;
+    std::map<std::string, std::vector<Face>> materialGroups;  // Group of faces that contains material name
 };
 
-OBJData                         loadFromOBJ(std::string& filename);
-std::map<std::string, Material> loadMTLFile(std::string& filename);
-std::vector<unsigned int>       flattenVertices(OBJData& meshData);
-std::vector<UV>                 flattenUVs(OBJData& meshData);
+OBJData                         loadFromOBJ(const std::string& filename);
+std::map<std::string, Material> loadMTLFile(const std::string& filename);
 GLuint                          loadDDSFile(const std::string& filename);
+
+std::vector<Vertex>       flattenVertices(const std::vector<Face>& faces, const std::vector<Vertex>& vertices);
+std::vector<UV>           flattenUVs(const std::vector<Face>& faces, const std::vector<UV>& uvs);
+std::vector<unsigned int> flattenIndices(const std::vector<Face>& faces);
+void                      flattenGroupData(const std::vector<Face>&   faces,
+                                           const std::vector<Vertex>& vertices,
+                                           const std::vector<UV>&     uvs,
+                                           std::vector<Vertex>&       outVertices,
+                                           std::vector<UV>&           outUVs,
+                                           std::vector<unsigned int>& outIndices);
+
+// Model related
+struct ModelGroup {
+    GLuint                    VAO;
+    GLuint                    VertexBuffer;
+    GLuint                    UVBuffer;
+    GLuint                    ElementBuffer;
+    GLuint                    TextureID;
+    std::string               materialName;
+    std::vector<unsigned int> indices;
+};
+
+GLuint                  createVAO(const std::vector<Vertex>& vertices, const std::vector<UV>& uvs, const std::vector<unsigned int>& indices);
+std::vector<ModelGroup> setupModel(const OBJData& meshData);
 
 const GLuint DDS_MAGIC        = 0x20534444;  // "DDS " Header
 const GLuint DDSD_MIPMAPCOUNT = 0x20000;

@@ -21,5 +21,5 @@ TEST_F(FileLoaderTest, LoadOBJFile) {
     std::string testPath = getAssetPath("models/Goku/Goku.obj").string();
     auto        objData  = loadFromOBJ(testPath);
     EXPECT_FALSE(objData.vertices.empty());
-    EXPECT_FALSE(objData.faces.empty());
+    EXPECT_FALSE(objData.materials.empty());
 }

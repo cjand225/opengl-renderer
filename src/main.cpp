@@ -79,51 +79,10 @@ int main(int argc, char** argv) {
     glUseProgram(programID);
 
     // Model Loading
-    std::filesystem::path     modelPath = "./assets/models/Goku/Goku.obj";
-    std::string               mPath     = modelPath.string();
-    OBJData                   meshData  = loadFromOBJ(mPath);
-    std::vector<unsigned int> indices   = flattenVertices(meshData);
-    std::vector<UV>           uvIndices = flattenUVs(meshData);
-
-    // Texture Loading
-    std::unordered_map<std::string, std::string> textures = {
-        {"eyes.png", "./assets/models/Goku/eyes.dds"},
-        {"face.png", "./assets/models/Goku/face.dds"},
-        {"pants.png", "./assets/models/Goku/pants.dds"},
-        {"shirt.png", "./assets/models/Goku/shirt.dds"}};
-
-    std::unordered_map<std::string, GLuint> textureCache = {};
-    for (const auto& pair : textures) {
-        textureCache.insert(std::make_pair(pair.first, loadDDSFile(pair.second)));
-    }
-
-    // Setup VAO
-    GLuint VertexBufferObject, ElementBufferObject, VertexArrayObject, UVBuffer;
-    glGenVertexArrays(1, &VertexArrayObject);
-    glGenBuffers(1, &VertexBufferObject);
-    glGenBuffers(1, &ElementBufferObject);
-    glGenBuffers(1, &UVBuffer);
-
-    glBindVertexArray(VertexArrayObject);
-
-    // Position Buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, meshData.vertices.size() * sizeof(Vertex), &meshData.vertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // UV buffer
-    glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
-    glBufferData(GL_ARRAY_BUFFER, uvIndices.size() * sizeof(UV), &uvIndices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(UV), (void*)0);
-    glEnableVertexAttribArray(1);
-
-    // Element Buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-    // Unbind VAO
-    glBindVertexArray(0);
+    std::filesystem::path   modelPath   = "./assets/models/Goku/Goku.obj";
+    std::string             mPath       = modelPath.string();
+    OBJData                 meshData    = loadFromOBJ(mPath);
+    std::vector<ModelGroup> modelGroups = setupModel(meshData);
 
     // Setup Control Variables
     int width, height;
@@ -170,30 +129,33 @@ int main(int argc, char** argv) {
         // Clear Screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Poll
+        // Poll and update the camera
         updateOrbitalCamera(window, camera);
 
-        // Apply Shaders
+        // Use the shader program
         glUseProgram(programID);
 
-        // Bind Textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureCache["face.png"]);  // Try with face texture first
-        glUniform1i(textureSamplerID, 0);
-
-        // Recalculate Matricies
-
+        // Recalculate Matrices
         calculateMatricies(window, camera, Projection, View, Model);
-
         MVP = Projection * View * Model;
-
-        // Send Transformation to shader
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        // Draw our Model
-        glBindVertexArray(VertexArrayObject);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        // Render each material group
+        for (const auto& group : modelGroups) {
+            // Bind the texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, group.TextureID);
+            glUniform1i(textureSamplerID, 0);
+
+            // Bind VAO
+            glBindVertexArray(group.VAO);
+
+            // Draw the elements
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(group.indices.size()), GL_UNSIGNED_INT, 0);
+
+            // Unbind VAO
+            glBindVertexArray(0);
+        }
 
         // Swap Buffers
         glfwSwapBuffers(window);
@@ -202,21 +164,26 @@ int main(int argc, char** argv) {
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
 
-    // Cleanup Buffers
-    glDeleteBuffers(1, &VertexBufferObject);
-    glDeleteBuffers(1, &ElementBufferObject);
-    glDeleteBuffers(1, &UVBuffer);
+    // Cleanup Model Groups
+    for (const auto& group : modelGroups) {
+        // Delete the VAO
+        glDeleteVertexArrays(1, &group.VAO);
+
+        if (group.VertexBuffer) {
+            glDeleteBuffers(1, &group.VertexBuffer);
+        }
+        if (group.UVBuffer) {
+            glDeleteBuffers(1, &group.UVBuffer);
+        }
+        if (group.ElementBuffer) {
+            glDeleteBuffers(1, &group.ElementBuffer);
+        }
+
+        glDeleteTextures(1, &group.TextureID);
+    }
 
     // Cleanup Programs
     glDeleteProgram(programID);
-
-    // Cleanup Textures
-    for (const auto& pair : textureCache) {
-        glDeleteTextures(1, &pair.second);
-    }
-
-    // Cleanup VAO
-    glDeleteVertexArrays(1, &VertexArrayObject);
 
     // Cleanup GLFW
     glfwDestroyWindow(window);

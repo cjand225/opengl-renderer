@@ -3,10 +3,11 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
 
 #include "FileLoader.h"
 
-OBJData loadFromOBJ(std::string& filename) {
+OBJData loadFromOBJ(const std::string& filename) {
     std::ifstream file(filename, std::ifstream::in);
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open file: " + filename);
@@ -58,40 +59,81 @@ OBJData loadFromOBJ(std::string& filename) {
                 face.vertexIndices.push_back(std::stoi(vertexIndex) - 1);
             }
 
-            data.faces.push_back(face);
+            data.materialGroups[currentMaterialName].push_back(face);
         }
     }
 
     return data;
 }
 
-std::vector<unsigned int> flattenVertices(OBJData& meshData) {
-    std::vector<unsigned int> indices;
-    for (const Face& face : meshData.faces) {
+std::vector<Vertex> flattenVertices(const std::vector<Face>& faces, const std::vector<Vertex>& vertices) {
+    std::vector<Vertex> flatVertices;
+    for (const auto& face : faces) {
         for (int index : face.vertexIndices) {
-            indices.push_back(static_cast<unsigned int>(index));
+            flatVertices.push_back(vertices[index]);
         }
     }
-
-    return indices;
+    return flatVertices;
 }
 
-std::vector<UV> flattenUVs(OBJData& meshData) {
-    std::vector<UV> uvs;
-    for (const Face& face : meshData.faces) {
+std::vector<UV> flattenUVs(const std::vector<Face>& faces, const std::vector<UV>& uvs) {
+    std::vector<UV> flatUVs;
+
+    for (const auto& face : faces) {
         for (int index : face.vertexIndices) {
-            if (index < meshData.UVs.size()) {
-                uvs.push_back(meshData.UVs[index]);
+            if (index < uvs.size()) {
+                flatUVs.push_back(uvs[index]);
             } else {
-                UV defaultUV = {0.0f, 0.0f, 0.0f};
-                uvs.push_back(defaultUV);
+                flatUVs.push_back({0.0f, 0.0f, 0.0f});  // Default UV
             }
         }
     }
-    return uvs;
+
+    return flatUVs;
 }
 
-std::map<std::string, Material> loadMTLFile(std::string& filename) {
+std::vector<unsigned int> flattenIndices(const std::vector<Face>& faces) {
+    std::vector<unsigned int> flatIndices;
+    unsigned int              currentIndex = 0;
+
+    for (const auto& face : faces) {
+        for (size_t i = 0; i < face.vertexIndices.size(); ++i) {
+            flatIndices.push_back(currentIndex++);
+        }
+    }
+
+    return flatIndices;
+}
+
+void flattenGroupData(const std::vector<Face>&   faces,
+                      const std::vector<Vertex>& vertices,
+                      const std::vector<UV>&     uvs,
+                      std::vector<Vertex>&       outVertices,
+                      std::vector<UV>&           outUVs,
+                      std::vector<unsigned int>& outIndices) {
+    std::unordered_map<int, unsigned int> vertexMap;
+    unsigned int                          newIndex = 0;
+
+    for (const auto& face : faces) {
+        for (int index : face.vertexIndices) {
+            // Map each unique vertex to a new index
+            if (vertexMap.find(index) == vertexMap.end()) {
+                vertexMap[index] = newIndex++;
+                outVertices.push_back(vertices[index]);
+
+                if (index < uvs.size()) {
+                    outUVs.push_back(uvs[index]);
+                } else {
+                    outUVs.push_back({0.0f, 0.0f, 0.0f});  // Default UV
+                }
+            }
+
+            outIndices.push_back(vertexMap[index]);
+        }
+    }
+}
+
+std::map<std::string, Material> loadMTLFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open file: " + filename);
@@ -271,4 +313,67 @@ GLuint loadDDSFile(const std::string& filename) {
 
     file.close();
     return textureID;
+}
+
+GLuint createVAO(const std::vector<Vertex>& vertices, const std::vector<UV>& uvs, const std::vector<unsigned int>& indices) {
+    GLuint VAO, VBO, UVBuffer, EBO;
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &UVBuffer);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    // Vertex Buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // UV Buffer
+    glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(UV), &uvs[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(UV), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    // Element Buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+
+    return VAO;
+}
+
+std::vector<ModelGroup> setupModel(const OBJData& meshData) {
+    std::vector<ModelGroup> modelGroups;
+
+    for (const auto& group : meshData.materialGroups) {
+        const std::string&       materialName = group.first;   // Material name
+        const std::vector<Face>& faces        = group.second;  // Faces for the material
+
+        // Flatten data for this group
+        std::vector<Vertex>       groupVertices;
+        std::vector<UV>           groupUVs;
+        std::vector<unsigned int> groupIndices;
+
+        flattenGroupData(faces, meshData.vertices, meshData.UVs, groupVertices, groupUVs, groupIndices);
+
+        // Retrieve texture ID from the material
+        GLuint textureID  = 0;
+        auto   materialIt = meshData.materials.find(materialName);
+        if (materialIt != meshData.materials.end() && materialIt->second.texture) {
+            textureID = materialIt->second.texture;
+        }
+
+        // Create VAO for the group
+        GLuint VAO = createVAO(groupVertices, groupUVs, groupIndices);
+
+        // Store the group
+        ModelGroup modelGroup{VAO, 0, 0, 0, textureID, materialName, groupIndices};
+        modelGroups.push_back(modelGroup);
+    }
+
+    return modelGroups;
 }
