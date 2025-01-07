@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug with GDB",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/OpenGLRenderer",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "preLaunchTask": "build",
+        "MIMode": "gdb",
+        "miDebuggerPath": "/usr/bin/gdb",
+        "externalConsole": true
+      }
+    ]
+  }
