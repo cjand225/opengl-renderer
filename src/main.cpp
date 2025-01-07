@@ -125,6 +125,11 @@ int main(int argc, char** argv) {
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
+    for (const auto& group : meshData.materialGroups) {
+        std::cout << "Material: " << group.first
+                  << " Faces: " << group.second.size() << std::endl;
+    }
+
     do {
         // Clear Screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

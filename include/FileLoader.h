@@ -88,6 +88,7 @@ struct OBJData {
 OBJData                         loadFromOBJ(const std::string& filename);
 std::map<std::string, Material> loadMTLFile(const std::string& filename);
 GLuint                          loadDDSFile(const std::string& filename);
+GLuint                          loadPNGTexture(const std::string& filePath);
 
 std::vector<Vertex>       flattenVertices(const std::vector<Face>& faces, const std::vector<Vertex>& vertices);
 std::vector<UV>           flattenUVs(const std::vector<Face>& faces, const std::vector<UV>& uvs);

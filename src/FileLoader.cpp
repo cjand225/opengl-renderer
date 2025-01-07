@@ -4,8 +4,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "FileLoader.h"
+#include "stb_image.h"
 
 OBJData loadFromOBJ(const std::string& filename) {
     std::ifstream file(filename, std::ifstream::in);
@@ -15,11 +16,11 @@ OBJData loadFromOBJ(const std::string& filename) {
 
     std::string line = "";
     OBJData     data;
+    std::string currentMaterialName = "";
 
     while (std::getline(file, line)) {
         std::istringstream iss(line);
-        std::string        prefix              = "";
-        std::string        currentMaterialName = "";
+        std::string        prefix = "";
 
         iss >> prefix;
 
@@ -53,9 +54,7 @@ OBJData loadFromOBJ(const std::string& filename) {
             while (iss >> vertexDef) {
                 std::istringstream vertexStream(vertexDef);
                 std::string        vertexIndex;
-
                 std::getline(vertexStream, vertexIndex, '/');
-
                 face.vertexIndices.push_back(std::stoi(vertexIndex) - 1);
             }
 
@@ -312,6 +311,55 @@ GLuint loadDDSFile(const std::string& filename) {
     std::cout << "OpenGL reports texture dimensions: " << texWidth << "x" << texHeight << std::endl;
 
     file.close();
+    return textureID;
+}
+
+GLuint loadPNGTexture(const std::string& filePath) {
+    // Texture ID
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    // Load image using stb_image
+    int width, height, channels;
+    stbi_set_flip_vertically_on_load(true);  // Flip image vertically if needed
+    unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
+
+    if (!data) {
+        std::cerr << "Failed to load texture: " << filePath << std::endl;
+        stbi_image_free(data);
+        return 0;
+    }
+
+    // Determine image format
+    GLenum format = GL_RGB;
+    if (channels == 1) {
+        format = GL_RED;
+    } else if (channels == 3) {
+        format = GL_RGB;
+    } else if (channels == 4) {
+        format = GL_RGBA;
+    }
+
+    // Bind the texture
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Load texture data into OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+    // Generate mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Free image memory
+    stbi_image_free(data);
+
+    std::cout << "Successfully loaded texture: " << filePath << " (" << width << "x" << height << ")" << std::endl;
+
     return textureID;
 }
 

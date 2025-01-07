@@ -1,19 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
 
-# Setup vars
+# Project setup
 set(PROJECT_NAME "OpenGLRenderer")
 project(${PROJECT_NAME})
 
 # Specify C++ Standard
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Platform specific settings
+# Platform-specific settings
 if(APPLE)
+    # Find required packages on macOS
     find_package(OpenGL REQUIRED)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(Stb REQUIRED)
     find_package(GTest CONFIG REQUIRED)
 
     # Add M1 Mac support
@@ -25,29 +27,30 @@ if(APPLE)
     add_compile_definitions(GL_SILENCE_DEPRECATION)
     add_compile_definitions(GLFW_INCLUDE_GLCOREARB)
 else()
+    # Find required packages on non-macOS platforms
     find_package(OpenGL REQUIRED)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(GLEW REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(Stb REQUIRED)
     find_package(GTest CONFIG REQUIRED)
 endif()
 
-# Define source files
+# Define source and header files
 file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
 list(REMOVE_ITEM LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
-# Define header files
 file(GLOB_RECURSE HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
 
 # Create library target
-add_library(${PROJECT_NAME}_lib ${LIB_SOURCES} ${HEADERS})
+add_library(${PROJECT_NAME}_lib STATIC ${LIB_SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
-# Link platform-specific libraries to lib target
+# Link platform-specific libraries to library target
 if(APPLE)
     target_link_libraries(${PROJECT_NAME}_lib PUBLIC
         "-framework OpenGL"
@@ -68,15 +71,21 @@ else()
     )
 endif()
 
+# Add stb include directories to the library target
+target_include_directories(${PROJECT_NAME}_lib PUBLIC ${Stb_INCLUDE_DIR})
+
 # Create executable target
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
 
-# Enable testing
+# Add stb include directories to the executable target
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+
+# Add tests
 enable_testing()
 add_subdirectory(tests)
 
-# Copy assets directory
+# Copy assets directory after build
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets

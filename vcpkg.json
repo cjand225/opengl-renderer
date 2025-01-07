@@ -6,7 +6,8 @@
     },
     "glfw3",
     "glm",
+    "gtest",
     "imgui",
-    "gtest"
+    "stb"
   ]
 }
