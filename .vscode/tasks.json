@@ -4,7 +4,7 @@
       {
         "label": "build",
         "type": "shell",
-        "command": "cmake --preset=vcpkg -B build -S . && cmake --build build",
+        "command": "cmake --preset=vcpkg -B build -DCMAKE_BUILD_TYPE=Debug -S . && cmake --build build",
         "group": {
           "kind": "build",
           "isDefault": true
