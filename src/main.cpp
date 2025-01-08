@@ -80,10 +80,10 @@ int main(int argc, char** argv) {
     glUseProgram(programID);
 
     // Model Loading
-    std::filesystem::path   modelPath   = "./assets/models/Goku/Goku.obj";
-    std::string             mPath       = modelPath.string();
-    OBJData                 meshData    = loadFromOBJ(mPath);
-    std::vector<ModelGroup> modelGroups = Model::createFromOBJ(meshData);
+    std::filesystem::path modelPath = "./assets/models/Goku/Goku.obj";
+    std::string           mPath     = modelPath.string();
+    OBJData               meshData  = loadFromOBJ(mPath);
+    Model                 model     = Model(meshData);
 
     // Setup Control Variables
     int width, height;
@@ -147,21 +147,7 @@ int main(int argc, char** argv) {
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         // Render each material group
-        for (const auto& group : modelGroups) {
-            // Bind the texture
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, group.TextureID);
-            glUniform1i(textureSamplerID, 0);
-
-            // Bind VAO
-            glBindVertexArray(group.VAO);
-
-            // Draw the elements
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(group.indices.size()), GL_UNSIGNED_INT, 0);
-
-            // Unbind VAO
-            glBindVertexArray(0);
-        }
+        model.draw(textureSamplerID);
 
         // Swap Buffers
         glfwSwapBuffers(window);
@@ -169,24 +155,6 @@ int main(int argc, char** argv) {
 
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
-
-    // Cleanup Model Groups
-    for (const auto& group : modelGroups) {
-        // Delete the VAO
-        glDeleteVertexArrays(1, &group.VAO);
-
-        if (group.VertexBuffer) {
-            glDeleteBuffers(1, &group.VertexBuffer);
-        }
-        if (group.UVBuffer) {
-            glDeleteBuffers(1, &group.UVBuffer);
-        }
-        if (group.ElementBuffer) {
-            glDeleteBuffers(1, &group.ElementBuffer);
-        }
-
-        glDeleteTextures(1, &group.TextureID);
-    }
 
     // Cleanup Programs
     glDeleteProgram(programID);

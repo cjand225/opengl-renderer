@@ -1,5 +1,29 @@
 #include "Model.h"
 
+Model::Model(const OBJData& meshData) {
+    modelGroups = createFromOBJ(meshData);
+}
+
+Model::~Model() {
+    // Cleanup Model Groups
+    for (const auto& group : modelGroups) {
+        // Delete the VAO
+        glDeleteVertexArrays(1, &group.VAO);
+
+        if (group.VertexBuffer) {
+            glDeleteBuffers(1, &group.VertexBuffer);
+        }
+        if (group.UVBuffer) {
+            glDeleteBuffers(1, &group.UVBuffer);
+        }
+        if (group.ElementBuffer) {
+            glDeleteBuffers(1, &group.ElementBuffer);
+        }
+
+        glDeleteTextures(1, &group.TextureID);
+    }
+}
+
 std::vector<ModelGroup> Model::createFromOBJ(const OBJData& meshData) {
     std::vector<ModelGroup> modelGroups;
 
@@ -57,4 +81,29 @@ GLuint Model::createVAO(const std::vector<Vertex>& vertices, const std::vector<U
     glBindVertexArray(0);
 
     return VAO;
+}
+
+void Model::draw(GLuint textureSamplerID) const {
+    for (const auto& group : modelGroups) {
+        drawGroup(group, textureSamplerID);
+    }
+}
+
+void Model::drawGroup(const ModelGroup& group, GLuint textureSamplerID) const {
+    // Bind the texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, group.TextureID);
+    glUniform1i(textureSamplerID, 0);
+
+    // Bind VAO
+    glBindVertexArray(group.VAO);
+
+    // Draw the elements
+    glDrawElements(GL_TRIANGLES,
+                   static_cast<GLsizei>(group.indices.size()),
+                   GL_UNSIGNED_INT,
+                   0);
+
+    // Unbind VAO
+    glBindVertexArray(0);
 }

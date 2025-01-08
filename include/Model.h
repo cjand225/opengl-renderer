@@ -19,10 +19,19 @@ struct ModelGroup {
 
 class Model {
 public:
+    Model(const OBJData& meshData);
+    ~Model();
     static std::vector<ModelGroup> createFromOBJ(const OBJData& meshData);
     static GLuint                  createVAO(const std::vector<Vertex>&       vertices,
                                              const std::vector<UV>&           uvs,
                                              const std::vector<unsigned int>& indices);
+
+    void draw(GLuint textureSamplerID) const;
+
+private:
+    std::vector<ModelGroup> modelGroups;
+
+    void drawGroup(const ModelGroup& group, GLuint textureSamplerID) const;
 };
 
 #endif  // MODEL_H
