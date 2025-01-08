@@ -14,7 +14,7 @@ std::string LoadShaderCodeFromFile(std::string filePath) {
         shaderCode = strStream.str();
         shaderStream.close();
     } else {
-        throw std::runtime_error("Impossible to open Vertex Shader.");
+        throw std::runtime_error("Impossible to open " + filePath + " Shader.");
     }
 
     return shaderCode;
