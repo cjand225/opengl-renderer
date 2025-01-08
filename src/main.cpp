@@ -15,6 +15,7 @@
 
 #include "FileLoader.h"
 #include "controls.h"
+#include "model.h"
 #include "shaders.h"
 
 int main(int argc, char** argv) {
@@ -82,7 +83,7 @@ int main(int argc, char** argv) {
     std::filesystem::path   modelPath   = "./assets/models/Goku/Goku.obj";
     std::string             mPath       = modelPath.string();
     OBJData                 meshData    = loadFromOBJ(mPath);
-    std::vector<ModelGroup> modelGroups = setupModel(meshData);
+    std::vector<ModelGroup> modelGroups = Model::createFromOBJ(meshData);
 
     // Setup Control Variables
     int width, height;
