@@ -1,6 +1,6 @@
 #include <unordered_map>
 
-#include "geometry.h"
+#include "Geometry.h"
 std::vector<Vertex> flattenVertices(const std::vector<Face>& faces, const std::vector<Vertex>& vertices) {
     std::vector<Vertex> flatVertices;
     for (const auto& face : faces) {

@@ -13,10 +13,10 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "Controls.h"
 #include "FileLoader.h"
-#include "controls.h"
-#include "model.h"
-#include "shaders.h"
+#include "Model.h"
+#include "Shaders.h"
 
 int main(int argc, char** argv) {
     if (!glfwInit()) {

@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "controls.h"
+#include "Controls.h"
 
 glm::vec3 sphericalToCartesian(float radius, float theta, float phi) {
     return glm::vec3(

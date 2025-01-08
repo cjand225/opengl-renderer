@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "shaders.h"
+#include "Shaders.h"
 
 std::string LoadShaderCodeFromFile(std::string filePath) {
     std::string   shaderCode;

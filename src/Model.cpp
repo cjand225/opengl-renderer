@@ -1,4 +1,4 @@
-#include "model.h"
+#include "Model.h"
 
 std::vector<ModelGroup> Model::createFromOBJ(const OBJData& meshData) {
     std::vector<ModelGroup> modelGroups;

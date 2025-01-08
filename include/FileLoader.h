@@ -24,8 +24,8 @@
 #include <string>
 #include <vector>
 
-#include "geometry.h"
-#include "material.h"
+#include "Geometry.h"
+#include "Material.h"
 
 struct DDS_PIXELFORMAT {
     GLuint size;
