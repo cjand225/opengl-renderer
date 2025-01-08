@@ -51,11 +51,23 @@ OBJData loadFromOBJ(const std::string& filename) {
             Face face;
             face.materialName = currentMaterialName;
             std::string vertexDef;
+
             while (iss >> vertexDef) {
                 std::istringstream vertexStream(vertexDef);
-                std::string        vertexIndex;
-                std::getline(vertexStream, vertexIndex, '/');
-                face.vertexIndices.push_back(std::stoi(vertexIndex) - 1);
+                std::string        index;
+
+                // Get vertex index
+                std::getline(vertexStream, index, '/');
+                face.vertexIndices.push_back(std::stoi(index) - 1);
+
+                // Get UV index
+                std::getline(vertexStream, index, '/');
+                if (!index.empty()) {
+                    face.uvIndices.push_back(std::stoi(index) - 1);
+                }
+
+                // Skip normal index (or store it if you need it)
+                std::getline(vertexStream, index, '/');
             }
 
             data.materialGroups[currentMaterialName].push_back(face);
@@ -79,9 +91,9 @@ std::vector<UV> flattenUVs(const std::vector<Face>& faces, const std::vector<UV>
     std::vector<UV> flatUVs;
 
     for (const auto& face : faces) {
-        for (int index : face.vertexIndices) {
-            if (index < uvs.size()) {
-                flatUVs.push_back(uvs[index]);
+        for (int uvIndex : face.uvIndices) {
+            if (uvIndex >= 0 && uvIndex < uvs.size()) {
+                flatUVs.push_back(uvs[uvIndex]);
             } else {
                 flatUVs.push_back({0.0f, 0.0f, 0.0f});  // Default UV
             }
@@ -104,30 +116,43 @@ std::vector<unsigned int> flattenIndices(const std::vector<Face>& faces) {
     return flatIndices;
 }
 
+struct PairHash {
+    template <class T1, class T2>
+    std::size_t operator()(const std::pair<T1, T2>& p) const {
+        auto h1 = std::hash<T1>{}(p.first);
+        auto h2 = std::hash<T2>{}(p.second);
+        return h1 ^ (h2 << 1);
+    }
+};
+
 void flattenGroupData(const std::vector<Face>&   faces,
                       const std::vector<Vertex>& vertices,
                       const std::vector<UV>&     uvs,
                       std::vector<Vertex>&       outVertices,
                       std::vector<UV>&           outUVs,
                       std::vector<unsigned int>& outIndices) {
-    std::unordered_map<int, unsigned int> vertexMap;
-    unsigned int                          newIndex = 0;
+    std::unordered_map<std::pair<int, int>, unsigned int, PairHash> vertexUVMap;
+    unsigned int                                                    newIndex = 0;
 
     for (const auto& face : faces) {
-        for (int index : face.vertexIndices) {
-            // Map each unique vertex to a new index
-            if (vertexMap.find(index) == vertexMap.end()) {
-                vertexMap[index] = newIndex++;
-                outVertices.push_back(vertices[index]);
+        for (size_t i = 0; i < face.vertexIndices.size(); i++) {
+            int vertexIndex = face.vertexIndices[i];
+            int uvIndex     = face.uvIndices[i];
 
-                if (index < uvs.size()) {
-                    outUVs.push_back(uvs[index]);
+            std::pair<int, int> vertexUVPair(vertexIndex, uvIndex);
+
+            if (vertexUVMap.find(vertexUVPair) == vertexUVMap.end()) {
+                vertexUVMap[vertexUVPair] = newIndex++;
+                outVertices.push_back(vertices[vertexIndex]);
+
+                if (uvIndex >= 0 && uvIndex < uvs.size()) {
+                    outUVs.push_back(uvs[uvIndex]);
                 } else {
-                    outUVs.push_back({0.0f, 0.0f, 0.0f});  // Default UV
+                    outUVs.push_back({0.0f, 0.0f, 0.0f});
                 }
             }
 
-            outIndices.push_back(vertexMap[index]);
+            outIndices.push_back(vertexUVMap[vertexUVPair]);
         }
     }
 }
