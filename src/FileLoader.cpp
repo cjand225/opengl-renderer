@@ -5,8 +5,23 @@
 #include <stdexcept>
 #include <unordered_map>
 #define STB_IMAGE_IMPLEMENTATION
+#include <algorithm>
+
 #include "FileLoader.h"
 #include "stb_image.h"
+
+GLuint loadTextureByExtension(const std::filesystem::path& texturePath) {
+    std::string extension = texturePath.extension().string();
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+    if (extension == ".dds") {
+        return loadDDSFile(texturePath.string());
+    } else if (extension == ".png") {
+        return loadPNGTexture(texturePath.string());
+    } else {
+        throw std::runtime_error("Unsupported texture format: " + extension);
+    }
+}
 
 OBJData loadFromOBJ(const std::string& filename) {
     std::ifstream file(filename, std::ifstream::in);
@@ -183,16 +198,14 @@ std::map<std::string, Material> loadMTLFile(const std::string& filename) {
             // Load texture into material struct
             std::filesystem::path parent       = std::filesystem::path(filename).parent_path();
             std::filesystem::path materialName = parent / currentMaterial.name;
-            materialName.replace_extension(".dds");
 
-            if (!std::filesystem::exists(materialName)) {
-                // Assume that we'll replace this and load the default file format if a .dds isn't found later.
-                throw new std::invalid_argument("Convert textures to .dds format, other formats unsupported.");
+            try {
+                currentMaterial.texture = loadTextureByExtension(materialName);
+                std::cout << "Loaded texture: " << materialName << std::endl;
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to load texture " << materialName << ": " << e.what() << std::endl;
+                throw;
             }
-
-            currentMaterial.texture = loadDDSFile(materialName);
-
-            std::cout << currentMaterial.texture << std::endl;
 
         } else if (prefix == "Ka") {
             iss >> currentMaterial.ambient.r >> currentMaterial.ambient.g >>
