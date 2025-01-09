@@ -1,7 +1,9 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-#include <GL/glew.h>
+#ifndef __APPLE__
+    #include <GLFW/glfw3.h>
+#endif
 
 #include <string>
 #include <vector>

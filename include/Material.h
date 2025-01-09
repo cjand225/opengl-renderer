@@ -1,7 +1,11 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <GL/glew.h>
+#ifdef __APPLE__
+    #include <GLFW/glfw3.h>
+#else
+    #include <GL/glew.h>
+#endif
 
 #include <glm/glm.hpp>
 #include <string>

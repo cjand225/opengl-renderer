@@ -1,7 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <GL/glew.h>
+#ifndef __APPLE__
+    #include <GL/glew.h>
+#endif
 
 #include <vector>
 
