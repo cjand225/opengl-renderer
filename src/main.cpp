@@ -2,9 +2,17 @@
     #define GL_SILENCE_DEPRECATION
     #define GLFW_INCLUDE_GLCOREARB
     #include <GLFW/glfw3.h>
+    #include <imgui.h>
+
+    #include "imgui_impl_glfw.h"
+    #include "imgui_impl_metal.h"
 #else
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
+    #include <imgui.h>
+
+    #include "imgui_impl_glfw.h"
+    #include "imgui_impl_opengl3.h"
 #endif
 
 #include <filesystem>
@@ -131,7 +139,30 @@ int main(int argc, char** argv) {
                   << " Faces: " << group.second.size() << std::endl;
     }
 
+    // imgui setup
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard navigation
+
+#ifdef __APPLE__
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplMetal_Init();
+#else
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+#endif
+
     do {
+        glfwPollEvents();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // imgui Creation Here
+
         // Clear Screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -149,15 +180,26 @@ int main(int argc, char** argv) {
         // Render each material group
         model.draw(textureSamplerID);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // Swap Buffers
         glfwSwapBuffers(window);
-        glfwPollEvents();
 
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
 
     // Cleanup Programs
     glDeleteProgram(programID);
+
+#ifdef __APPLE__
+    ImGui_ImplMetal_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+#else
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+#endif
+    ImGui::DestroyContext();
 
     // Cleanup GLFW
     glfwDestroyWindow(window);
