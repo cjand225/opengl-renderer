@@ -38,12 +38,15 @@ else()
 endif()
 
 # Define source and header files
-file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
+file(GLOB_RECURSE LIB_SOURCES
+    "src/*.cpp"
+    "src/ECS/*.cpp"
+)
 list(REMOVE_ITEM LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
 file(GLOB_RECURSE HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/ECS/*.h"
 )
 
 # Create library target
