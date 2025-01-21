@@ -1,6 +1,8 @@
 file(GLOB_RECURSE TEST_SOURCES
     "src/*.cpp"
     "src/ecs/*.cpp"
+    "src/ecs/Components/*.cpp"
+    "src/ecs/Systems/*.cpp"
 )
 
 add_executable(unit_tests ${TEST_SOURCES})

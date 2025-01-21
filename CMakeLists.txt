@@ -45,12 +45,16 @@ endif()
 file(GLOB_RECURSE LIB_SOURCES
     "src/*.cpp"
     "src/ECS/*.cpp"
+    "src/ECS/Components/*.cpp"
+    "src/ECS/Systems/*.cpp"
 )
 list(REMOVE_ITEM LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 
 file(GLOB_RECURSE HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/ECS/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/ECS/Components/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/ECS/Systems/*.h"
 )
 
 # Create library target
