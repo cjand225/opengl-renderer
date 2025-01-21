@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Project setup
-set(PROJECT_NAME "OpenGLRenderer")
+set(PROJECT_NAME "Prism")
 project(${PROJECT_NAME})
 
 # Specify C++ Standard

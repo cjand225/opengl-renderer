@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(1024, 768, "OpenGL Renderer", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1024, 768, "Prism", NULL, NULL);
 
     if (!window) {
         std::cerr << "Failed to open GLFW window." << std::endl;

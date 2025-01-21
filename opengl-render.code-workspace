@@ -115,7 +115,8 @@
             "semaphore": "cpp",
             "stop_token": "cpp",
             "thread": "cpp",
-            "cinttypes": "cpp"
+            "cinttypes": "cpp",
+            "typeindex": "cpp"
         },
         "files.trimTrailingWhitespace": true,
         "files.insertFinalNewline": true,

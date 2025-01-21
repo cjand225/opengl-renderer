@@ -1,8 +1,8 @@
-# OpenGL Renderer
+# Prism
 
 ## Overview
 
-This project is a 3D renderer built using OpenGL with an Entity Component System (ECS) architecture. It demonstrates modern rendering techniques and game engine design patterns, including model loading, transformations, and custom shaders.
+This project is a 3D model viewer built using OpenGL with an Entity Component System (ECS) architecture. It demonstrates modern rendering techniques and game engine design patterns, including model loading, transformations, and custom shaders.
 
 ## Features
 
@@ -37,8 +37,8 @@ The following dependencies are automatically handled by vcpkg:
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/cjand225/opengl-renderer.git
-cd opengl-renderer
+git clone https://github.com/cjand225/prism.git
+cd prism
 ```
 
 2. Configure and build:

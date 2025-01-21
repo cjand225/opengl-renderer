@@ -5,7 +5,7 @@
         "name": "Debug with GDB",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${workspaceFolder}/build/OpenGLRenderer",
+        "program": "${workspaceFolder}/build/Prism",
         "args": [],
         "cwd": "${workspaceFolder}",
         "preLaunchTask": "build",
