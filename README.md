@@ -2,15 +2,21 @@
 
 ## Overview
 
-This project is a simple renderer built using OpenGL. It demonstrates the basics of 3D rendering, including loading models, applying transformations, and rendering them with custom shaders. It's designed to work on modern systems with OpenGL 3.3+ support.
+This project is a 3D renderer built using OpenGL with an Entity Component System (ECS) architecture. It demonstrates modern rendering techniques and game engine design patterns, including model loading, transformations, and custom shaders.
 
 ## Features
 
+### Rendering
 - Model loading from OBJ files with material support
 - Texture loading from DDS files
 - Basic camera controls with mouse and keyboard input
 - Modern OpenGL practices using VAOs and VBOs
-- Cross-platform compatibility with Windows, macOS, and Linux
+
+### Entity Component System
+- Flexible component-based architecture
+- Entity management with dynamic component attachment/detachment
+- System-based logic processing
+- Extensible design for adding new components and systems
 
 ## Prerequisites
 
@@ -20,10 +26,11 @@ This project is a simple renderer built using OpenGL. It demonstrates the basics
 - OpenGL 3.3 or higher capable GPU
 
 The following dependencies are automatically handled by vcpkg:
-
 - GLFW3 for windowing and input
 - GLEW for OpenGL extension loading (non-macOS platforms only)
 - GLM for mathematics
+- Dear ImGui for UI
+- GTest for unit testing
 
 ## Building the Project
 
@@ -42,6 +49,13 @@ cmake --preset=vcpkg
 
 # Build
 cmake --build build
+```
+
+3. Run tests (Debug/RelWithDebInfo builds only):
+
+```sh
+cd build
+ctest --output-on-failure
 ```
 
 ## Platform-Specific Notes
@@ -68,9 +82,18 @@ cmake --build build
 
 ## Controls
 
-- WASD/Arrow Keys: Move camera
-- Mouse: Look around
+- Left Mouse Button: Orbit camera around target
+  - Drag horizontally to rotate around the target (theta)
+  - Drag vertically to change elevation angle (phi)
+- Mouse Scroll: Zoom in/out
+  - Scroll up to zoom in
+  - Scroll down to zoom out
 - ESC: Exit
+
+The camera uses an orbital system where:
+- The camera orbits around a target point
+- Zoom is controlled by adjusting the orbital radius
+- Movement is constrained to maintain a stable viewing angle
 
 ## Project Structure
 
@@ -78,11 +101,28 @@ cmake --build build
 .
 ├── assets/             # Shader files, models, and textures
 ├── include/            # Header files
-├── src/                # Source files
-├── tests/              # Test files
-├── CMakeLists.txt      # CMake build configuration
-├── vcpkg.json          # vcpkg dependencies
-└── README.md           # This file
+│   └── ECS/           # Entity Component System headers
+│       ├── Components/  # Component declarations
+│       ├── Systems/    # System declarations
+│       ├── Component.h # Base component class
+│       ├── Entity.h    # Entity class
+│       └── System.h    # Base system class
+├── src/               # Source files
+│   └── ECS/          # Entity Component System implementations
+│       ├── Components/ # Component implementations
+│       ├── Systems/   # System implementations
+│       ├── Component.cpp
+│       ├── Entity.cpp
+│       └── System.cpp
+├── tests/             # Test files
+│   └── src/
+│       └── ecs/      # ECS tests
+│           ├── Components/  # Component tests
+│           ├── Systems/    # System tests
+│           └── mocks/      # Test mocks
+├── CMakeLists.txt     # CMake build configuration
+├── vcpkg.json         # vcpkg dependencies
+└── README.md          # This file
 ```
 
 ## License
