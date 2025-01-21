@@ -1,4 +1,7 @@
-file(GLOB_RECURSE TEST_SOURCES "*.cpp")
+file(GLOB_RECURSE TEST_SOURCES
+    "src/*.cpp"
+    "src/ecs/*.cpp"
+)
 
 add_executable(unit_tests ${TEST_SOURCES})
 target_link_libraries(unit_tests PRIVATE
@@ -6,7 +9,10 @@ target_link_libraries(unit_tests PRIVATE
     GTest::gtest_main
     ${PROJECT_NAME}_lib)
 
-target_include_directories(unit_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 add_custom_command(TARGET unit_tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
