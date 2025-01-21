@@ -16,7 +16,9 @@ if(APPLE)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
     find_package(Stb REQUIRED)
-    find_package(GTest CONFIG REQUIRED)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        find_package(GTest CONFIG REQUIRED)
+    endif()
 
     # Add M1 Mac support
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -34,7 +36,9 @@ else()
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
     find_package(Stb REQUIRED)
-    find_package(GTest CONFIG REQUIRED)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        find_package(GTest CONFIG REQUIRED)
+    endif()
 endif()
 
 # Define source and header files
@@ -84,9 +88,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
 # Add stb include directories to the executable target
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 
-# Add tests
-enable_testing()
-add_subdirectory(tests)
+# Add tests only in Debug mode
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
 # Copy assets directory after build
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
