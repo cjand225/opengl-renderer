@@ -16,7 +16,7 @@ if(APPLE)
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
     find_package(Stb REQUIRED)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
         find_package(GTest CONFIG REQUIRED)
     endif()
 
@@ -36,7 +36,7 @@ else()
     find_package(glm CONFIG REQUIRED)
     find_package(imgui CONFIG REQUIRED)
     find_package(Stb REQUIRED)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
         find_package(GTest CONFIG REQUIRED)
     endif()
 endif()
@@ -88,8 +88,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
 # Add stb include directories to the executable target
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 
-# Add tests only in Debug mode
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# Add tests in Debug and RelWithDebInfo modes
+if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
     enable_testing()
     add_subdirectory(tests)
 endif()
