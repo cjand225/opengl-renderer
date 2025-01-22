@@ -9,9 +9,6 @@ Entity::~Entity() {
 }
 
 void Entity::cleanup() {
-    for (auto& [type, component] : components) {
-        component->cleanup();
-    }
     components.clear();
 }
 

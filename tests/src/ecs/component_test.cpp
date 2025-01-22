@@ -7,18 +7,15 @@
 
 // Component Tests
 TEST(ComponentTest, ComponentLifecycle) {
+    MockComponent* rawPtr = new MockComponent();
+    {
+        auto component = std::shared_ptr<MockComponent>(rawPtr);
+        EXPECT_FALSE(rawPtr->destroyed);
+    }
+    EXPECT_TRUE(rawPtr->destroyed);
+}
+
+TEST(ComponentTest, ComponentCreation) {
     auto component = std::make_shared<MockComponent>();
-
-    EXPECT_FALSE(component->initialized);
-    EXPECT_FALSE(component->updated);
-    EXPECT_FALSE(component->cleaned);
-
-    component->initialize();
-    EXPECT_TRUE(component->initialized);
-
-    component->update();
-    EXPECT_TRUE(component->updated);
-
-    component->cleanup();
-    EXPECT_TRUE(component->cleaned);
+    EXPECT_NE(component, nullptr);
 }

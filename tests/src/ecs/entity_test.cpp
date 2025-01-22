@@ -56,13 +56,13 @@ TEST_F(EntityTest, ComponentManagement) {
     EXPECT_EQ(retrieved, nullptr);
 }
 
-TEST_F(EntityTest, ComponentLifecycle) {
+TEST_F(EntityTest, ComponentDestruction) {
     auto component = std::make_shared<MockComponent>();
     entity->addComponent<MockComponent>(component);
 
-    // Test cleanup propagation
+    // Test component is properly destroyed when entity is cleaned up
     entity->cleanup();
-    EXPECT_TRUE(component->cleaned);
+    EXPECT_EQ(entity->getComponent<MockComponent>(), nullptr);
 }
 
 TEST_F(EntityTest, MultipleComponents) {
