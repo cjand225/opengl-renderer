@@ -13,7 +13,7 @@ SystemManager::~SystemManager() {
 }
 
 void SystemManager::registerSystem(System* system) {
-    systems.push_back(std::make_shared<System>(system));
+    systems.push_back(std::shared_ptr<System>(system));
 }
 
 void SystemManager::update() {
