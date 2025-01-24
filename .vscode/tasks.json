@@ -10,7 +10,7 @@
           "isDefault": true
         },
         "problemMatcher": [
-          "$gcc"
+          "$clang"
         ]
       }
     ]
