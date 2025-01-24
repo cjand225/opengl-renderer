@@ -1,7 +1,7 @@
 #ifndef MESH_COMPONENT_HPP
 #define MESH_COMPONENT_HPP
 
-#include <glm/glm.hpp>  // For vector math
+#include <glm/glm.hpp>
 #include <vector>
 
 #include "ECS/Component.h"
